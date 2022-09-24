@@ -3,10 +3,10 @@
   "username": "zen1405",
   "name": "Shreyas Kanjalkar",
   "userimg": "https://avatars.githubusercontent.com/u/37182124?v=4",
-  "sort": "created",
+  "sort": "star",
   "order": "asc",
   "includeFork": false,
-  "theme": "light.css",
+  "theme": "dark.css",
   "types": [
    "all"
   ]
