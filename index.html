@@ -76,6 +76,15 @@
                 </div>
             </section>
             </a>
+            <section>
+              <div class="section_title">Credit Scheduler with Load Balancing</div>
+              <div class="about_section">
+              <span style="text-align:justify; display:block;">
+                Implemented a Credit Scheudler, based on Application based user threads and kernel threads. First kernel threads are created based on the number of CPU cores available in the system.
+                After that each thread is assigned 128 user threads that work on the specified Kernel Thread initially. All user threads work on their specific part of the applicaiton. Credit Scheduler following Xen logic was implemented, with heuristic to improve performance by 43% using Credit Scheduler over O(1) Priority Scheduler.
+                Load balancing is done using a simplistic approach, that when a kthread becomes IDLE, it finds a Kthread that is not idle and picks up the uthreads from its active queue and then adds it to its own active queue. All of this is done atomically, so whatever changes that involve data change requires a lock.</span>
+              </div>
+              </section>
             <a href="https://github.com/skanjalkar/lichess_db_project" target="_blank">
               <section>
                   <div class="section_title">DataBase project for Lichess</div>
