@@ -84,6 +84,11 @@
                 After that each thread is assigned 128 user threads that work on the specified Kernel Thread initially. All user threads work on their specific part of the applicaiton. Credit Scheduler following Xen logic was implemented, with heuristic to improve performance by 43% using Credit Scheduler over O(1) Priority Scheduler.
                 Load balancing is done using a simplistic approach, that when a kthread becomes IDLE, it finds a Kthread that is not idle and picks up the uthreads from its active queue and then adds it to its own active queue. All of this is done atomically, so whatever changes that involve data change requires a lock.</span>
               </div>
+              <div class="bottom_section">
+                <span style="display:inline-block;"><i class="fas fa-code"></i>&nbsp; C, bash</span>
+                <span><i class="fas fa-star"></i>&nbsp; 1</span>
+                <span><i class="fas fa-code-branch"></i>&nbsp; 1</span>
+            </div>
               </section>
             <a href="https://github.com/skanjalkar/lichess_db_project" target="_blank">
               <section>
