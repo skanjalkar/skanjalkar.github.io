@@ -7,7 +7,6 @@ Cargo.lock
 
 # Node modules (for Tailwind)
 /node_modules/
-package-lock.json
 
 # IDE
 .idea/
