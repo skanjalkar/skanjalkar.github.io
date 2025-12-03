@@ -35,8 +35,8 @@
     <!-- Tailwind CSS (processed by trunk) -->
     <link data-trunk rel="css" href="styles/output.css" />
     
-    <!-- WASM application -->
-    <link data-trunk rel="rust" data-wasm-opt="z" />
+    <!-- WASM application - specify the binary target -->
+    <link data-trunk rel="rust" data-bin="skanjalkar-portfolio" data-wasm-opt="z" />
   </head>
   <body class="bg-bg-dark text-white font-sans antialiased">
     <!-- Loading screen shown while WASM loads -->
