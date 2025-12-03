@@ -12,25 +12,18 @@ pub struct BlogContentItem {
     pub alt: Option<String>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
 pub struct BlogPost {
+    #[serde(default)]
     pub id: String,
+    #[serde(default)]
     pub title: String,
+    #[serde(default)]
     pub date: String,
+    #[serde(default)]
     pub summary: String,
+    #[serde(default)]
     pub top_image: String,
+    #[serde(default)]
     pub content: Vec<BlogContentItem>,
-}
-
-impl Default for BlogPost {
-    fn default() -> Self {
-        Self {
-            id: String::new(),
-            title: String::new(),
-            date: String::new(),
-            summary: String::new(),
-            top_image: String::new(),
-            content: Vec::new(),
-        }
-    }
 }

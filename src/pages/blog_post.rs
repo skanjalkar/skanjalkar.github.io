@@ -9,10 +9,7 @@ pub fn BlogPostPage() -> impl IntoView {
     let params = use_params_map();
     let slug = move || params.with(|p| p.get("slug").cloned().unwrap_or_default());
 
-    let post = create_local_resource(
-        move || slug(),
-        |slug| async move { fetch_blog_post(&slug).await },
-    );
+    let post = create_local_resource(slug, |slug| async move { fetch_blog_post(&slug).await });
 
     view! {
         <div>
@@ -27,13 +24,13 @@ pub fn BlogPostPage() -> impl IntoView {
                         match maybe_post {
                             Some(post) => view! {
                                 <article class="max-w-3xl">
-                                    <div 
+                                    <div
                                         class="w-full h-64 rounded-lg bg-cover bg-center bg-no-repeat mb-8"
                                         style=format!("background-image: url('{}')", post.top_image)
                                     />
                                     <h1 class="section-title mb-2">{post.title}</h1>
                                     <p class="text-gray-500 mb-8">{post.date}</p>
-                                    
+
                                     <div class="space-y-6">
                                         {post.content.into_iter().map(|item| {
                                             render_content_item(item)
@@ -61,15 +58,17 @@ fn render_content_item(item: BlogContentItem) -> impl IntoView {
             let text = item.text.unwrap_or_default();
             view! {
                 <p class="text-gray-300 font-display text-lg leading-relaxed">{text}</p>
-            }.into_view()
+            }
+            .into_view()
         }
         "image" => {
             let src = item.src.unwrap_or_default();
             let alt = item.alt.unwrap_or_default();
             view! {
                 <img src={src} alt={alt} class="rounded-lg w-full max-w-xl mx-auto my-8" />
-            }.into_view()
+            }
+            .into_view()
         }
-        _ => view! { <div></div> }.into_view()
+        _ => view! { <div></div> }.into_view(),
     }
 }
