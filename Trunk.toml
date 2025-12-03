@@ -3,7 +3,7 @@
 
 [build]
 # The index HTML file to drive the bundling process
-target = "index.html"
+target = "index_leptos.html"
 # Build output directory
 dist = "dist"
 # Public URL base path - use / for GitHub Pages
