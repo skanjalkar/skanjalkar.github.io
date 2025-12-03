@@ -11,7 +11,7 @@ public_url = "/"
 
 [watch]
 # Paths to watch for changes during development
-watch = ["src", "styles", "static", "index.html", "Cargo.toml"]
+watch = ["src", "styles", "static", "index_leptos.html", "Cargo.toml"]
 # Paths to ignore
 ignore = ["dist", "target"]
 
