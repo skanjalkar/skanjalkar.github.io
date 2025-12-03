@@ -1,4 +1,4 @@
-use crate::components::{Icon, ThemeToggle};
+use crate::components::Icon;
 use crate::models::Profile;
 use leptos::*;
 use leptos_router::*;
@@ -73,8 +73,6 @@ pub fn Sidebar() -> impl IntoView {
                     <A href="/projects" class="link hover:text-gray-300">"Projects"</A>
                     <A href="/blog" class="link hover:text-gray-300">"Blog"</A>
                 </nav>
-
-                <ThemeToggle />
             </div>
         </aside>
     }
