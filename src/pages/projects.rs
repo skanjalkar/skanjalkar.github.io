@@ -1,18 +1,18 @@
-use leptos::*;
-use crate::components::{ProjectCard, Loading};
 use crate::api::fetch_github_repos;
+use crate::components::{Loading, ProjectCard};
+use leptos::*;
 
 #[component]
 pub fn ProjectsPage() -> impl IntoView {
     let projects = create_local_resource(
         || (),
-        |_| async move { fetch_github_repos("skanjalkar").await }
+        |_| async move { fetch_github_repos("skanjalkar").await },
     );
-    
+
     view! {
         <div>
             <h1 class="section-title">"Projects"</h1>
-            
+
             <Suspense fallback=move || view! { <Loading /> }>
                 {move || projects.get().map(|repos| {
                     if repos.is_empty() {

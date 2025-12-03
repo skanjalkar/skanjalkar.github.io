@@ -71,6 +71,6 @@ pub fn Icon(
             <span class="text-xs">"?"</span>
         }.into_view(),
     };
-    
+
     svg_content
 }

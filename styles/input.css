@@ -13,12 +13,14 @@
   
   /* Dark mode (default) */
   html.dark body {
-    @apply bg-bg-dark text-white;
+    background-color: #0A0A0A; /* bg-dark */
+    color: #ffffff;
   }
   
   /* Light mode */
   html.light body {
-    @apply bg-white text-gray-900;
+    background-color: #ffffff;
+    color: rgb(17 24 39); /* gray-900 */
   }
   
   html.light .bg-bg-dark {
@@ -30,27 +32,31 @@
   }
   
   html.light .text-white {
-    @apply text-gray-900;
+    color: rgb(17 24 39) !important; /* gray-900 */
   }
   
   html.light .text-gray-400 {
-    @apply text-gray-600;
+    color: rgb(75 85 99) !important; /* gray-600 */
   }
   
   html.light .text-gray-500 {
-    @apply text-gray-600;
+    color: rgb(75 85 99) !important; /* gray-600 */
   }
   
   html.light .border-white\/5 {
-    @apply border-gray-200;
+    border-color: rgb(229 231 235) !important; /* gray-200 */
   }
   
   html.light .bg-white\/10 {
-    @apply bg-gray-200;
+    background-color: rgb(229 231 235) !important; /* gray-200 */
   }
   
   html.light .hover\:bg-white\/20:hover {
-    @apply hover:bg-gray-300;
+    background-color: rgb(209 213 219) !important; /* gray-300 */
+  }
+  
+  html.light .text-white\/80 {
+    color: rgb(55 65 81) !important; /* gray-700 */
   }
   
   ::-webkit-scrollbar {
@@ -74,11 +80,13 @@
   }
   
   html.dark ::selection {
-    @apply bg-white text-bg-dark;
+    background-color: #ffffff;
+    color: #0A0A0A;
   }
   
   html.light ::selection {
-    @apply bg-gray-900 text-white;
+    background-color: rgb(17 24 39);
+    color: #ffffff;
   }
 }
 

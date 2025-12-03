@@ -18,10 +18,14 @@ pub struct Project {
 
 impl Project {
     pub fn display_description(&self) -> String {
-        self.description.clone().unwrap_or_else(|| "No description available".to_string())
+        self.description
+            .clone()
+            .unwrap_or_else(|| "No description available".to_string())
     }
-    
+
     pub fn display_language(&self) -> String {
-        self.language.clone().unwrap_or_else(|| "Unknown".to_string())
+        self.language
+            .clone()
+            .unwrap_or_else(|| "Unknown".to_string())
     }
 }

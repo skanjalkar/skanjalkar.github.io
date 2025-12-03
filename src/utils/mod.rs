@@ -1,5 +1,5 @@
-mod storage;
 mod markdown;
+mod storage;
 
-pub use storage::{get_stored_theme, store_theme};
 pub use markdown::parse_markdown;
+pub use storage::{get_stored_theme, store_theme};

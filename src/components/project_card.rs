@@ -1,12 +1,12 @@
-use leptos::*;
-use crate::models::Project;
 use crate::components::Icon;
+use crate::models::Project;
+use leptos::*;
 
 #[component]
 pub fn ProjectCard(project: Project) -> impl IntoView {
     view! {
-        <a 
-            href={project.html_url.clone()} 
+        <a
+            href={project.html_url.clone()}
             target="_blank"
             class="project-card"
         >

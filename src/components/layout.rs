@@ -1,5 +1,5 @@
+use crate::components::{Footer, Sidebar};
 use leptos::*;
-use crate::components::{Sidebar, Footer};
 
 #[component]
 pub fn Layout(children: Children) -> impl IntoView {

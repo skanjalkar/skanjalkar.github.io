@@ -23,7 +23,7 @@ pub fn HomePage() -> impl IntoView {
                     "and sometimes I click circles on osu!"
                 </p>
             </section>
-            
+
             <section id="featured-projects" class="mb-12">
                 <h1 class="section-title">"Featured Projects"</h1>
                 <p class="text-gray-400 font-display">
@@ -32,7 +32,7 @@ pub fn HomePage() -> impl IntoView {
                     " for all my work."
                 </p>
             </section>
-            
+
             <section id="recent-posts">
                 <h1 class="section-title">"Recent Posts"</h1>
                 <p class="text-gray-400 font-display">

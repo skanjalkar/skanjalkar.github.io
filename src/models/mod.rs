@@ -1,7 +1,7 @@
+mod blog;
 mod profile;
 mod project;
-mod blog;
 
+pub use blog::{BlogMeta, BlogPost};
 pub use profile::Profile;
 pub use project::Project;
-pub use blog::{BlogPost, BlogMeta};
