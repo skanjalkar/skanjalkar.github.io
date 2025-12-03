@@ -1,3 +1,1 @@
-mod markdown;
-
-pub use markdown::parse_markdown;
+// Utils module - currently empty, can be used for future utility functions
