@@ -19,7 +19,7 @@ impl Default for Profile {
             name: "Shreyas Kanjalkar".to_string(),
             username: "skanjalkar".to_string(),
             avatar_url: "https://avatars.githubusercontent.com/u/37182124?v=4".to_string(),
-            bio: "MS CS student at Georgia Tech, previously completed MS Robotics at WPI."
+            bio: "SDE at AWS DSQL Storage team, previously completed MS CS at Georgia Tech and Robotics at WPI."
                 .to_string(),
             location: "Atlanta, GA, USA".to_string(),
             email: "skanjalkar3@gatech.edu".to_string(),
