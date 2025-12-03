@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    
+    <!-- SEO Meta Tags -->
+    <title>Shreyas Kanjalkar | Software Engineer</title>
+    <meta name="description" content="MS CS student at Georgia Tech, Software Engineer passionate about distributed systems and cloud computing." />
+    <meta name="author" content="Shreyas Kanjalkar" />
+    <meta name="keywords" content="Shreyas Kanjalkar, Software Engineer, Georgia Tech, Distributed Systems, Rust, Cloud Computing" />
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Shreyas Kanjalkar | Software Engineer" />
+    <meta property="og:description" content="MS CS student at Georgia Tech, Software Engineer passionate about distributed systems and cloud computing." />
+    <meta property="og:image" content="https://avatars.githubusercontent.com/u/37182124?v=4" />
+    <meta property="og:url" content="https://skanjalkar.github.io" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Shreyas Kanjalkar | Software Engineer" />
+    <meta name="twitter:description" content="MS CS student at Georgia Tech, Software Engineer passionate about distributed systems and cloud computing." />
+    <meta name="twitter:image" content="https://avatars.githubusercontent.com/u/37182124?v=4" />
+    
+    <!-- Favicon -->
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/37182124?v=4" type="image/png" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Questrial&display=swap" rel="stylesheet" />
+    
+    <!-- Tailwind CSS (processed by trunk) -->
+    <link data-trunk rel="css" href="styles/output.css" />
+    
+    <!-- WASM application -->
+    <link data-trunk rel="rust" data-wasm-opt="z" />
+  </head>
+  <body class="bg-bg-dark text-white font-sans antialiased">
+    <!-- Loading screen shown while WASM loads -->
+    <div id="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-bg-dark">
+      <div class="flex flex-col items-center gap-4">
+        <div class="w-12 h-12 border-2 border-bg-dark border-b-white rounded-full animate-spin"></div>
+        <span class="text-gray-400 font-display">Loading...</span>
+      </div>
+    </div>
+    
+    <!-- Noscript fallback -->
+    <noscript>
+      <div class="fixed inset-0 flex items-center justify-center bg-bg-dark text-white p-8 text-center">
+        <div>
+          <h1 class="text-2xl font-bold mb-4">JavaScript Required</h1>
+          <p class="text-gray-400">This website requires JavaScript and WebAssembly to run.</p>
+          <p class="text-gray-400 mt-2">Please enable JavaScript in your browser settings.</p>
+        </div>
+      </div>
+    </noscript>
+    
+    <script>
+      // Hide loading screen once WASM app mounts
+      window.addEventListener('DOMContentLoaded', () => {
+        // Check if app has mounted (Leptos will add content to body)
+        const observer = new MutationObserver((mutations, obs) => {
+          const app = document.querySelector('[data-leptos]');
+          if (app || document.body.children.length > 2) {
+            const loading = document.getElementById('loading');
+            if (loading) {
+              loading.style.opacity = '0';
+              loading.style.transition = 'opacity 0.3s ease-out';
+              setTimeout(() => loading.remove(), 300);
+            }
+            obs.disconnect();
+          }
+        });
+        
+        observer.observe(document.body, { childList: true, subtree: true });
+        
+        // Fallback: hide after 5 seconds regardless
+        setTimeout(() => {
+          const loading = document.getElementById('loading');
+          if (loading) {
+            loading.style.opacity = '0';
+            loading.style.transition = 'opacity 0.3s ease-out';
+            setTimeout(() => loading.remove(), 300);
+          }
+        }, 5000);
+      });
+    </script>
+  </body>
+</html>

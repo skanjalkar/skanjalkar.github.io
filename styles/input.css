@@ -1,0 +1,138 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply antialiased;
+  }
+  
+  ::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-bg-dark;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-white/20 rounded-full hover:bg-white/40;
+  }
+  
+  ::selection {
+    @apply bg-white text-bg-dark;
+  }
+}
+
+@layer components {
+  .card {
+    @apply p-6 rounded-lg bg-card-dark border border-white/5 
+           hover:border-transparent hover:shadow-xl 
+           transition-all duration-300 ease-in-out;
+  }
+  
+  .card:hover {
+    @apply scale-103;
+    box-shadow: 0px 15px 35px rgba(0, 0, 0, 0.06);
+  }
+  
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg-dark;
+  }
+  
+  .btn-primary {
+    @apply btn bg-white text-bg-dark hover:bg-gray-200 focus:ring-white;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-transparent border border-white/20 text-white 
+           hover:bg-white/10 focus:ring-white/50;
+  }
+  
+  .link {
+    @apply text-white font-bold no-underline hover:underline;
+  }
+  
+  .section-title {
+    @apply text-5xl font-bold font-display text-white mb-8;
+  }
+  
+  .sidebar {
+    @apply w-full lg:w-[30vw] p-4 lg:p-8 min-h-screen lg:fixed
+           flex flex-col justify-center text-left
+           bg-cover bg-center bg-no-repeat text-white;
+  }
+  
+  .main-content {
+    @apply w-full lg:w-[70vw] lg:ml-[30vw] p-4 lg:p-8 min-h-screen;
+  }
+  
+  .project-card {
+    @apply card block;
+  }
+  
+  .project-card .title {
+    @apply text-xl font-bold mb-2 break-words;
+  }
+  
+  .project-card .description {
+    @apply text-gray-400 font-display mb-4 break-words;
+  }
+  
+  .project-card .meta {
+    @apply flex gap-4 text-sm text-gray-500;
+  }
+  
+  .blog-card {
+    @apply card p-0 overflow-hidden;
+  }
+  
+  .blog-card img {
+    @apply w-full rounded-t-lg;
+  }
+  
+  .blog-card .content {
+    @apply p-6;
+  }
+  
+  .icon {
+    @apply inline-block w-4 h-4;
+  }
+  
+  .social-link {
+    @apply text-white/80 hover:text-white transition-colors duration-200;
+  }
+  
+  .tag {
+    @apply inline-block px-2 py-1 text-xs font-medium rounded-full
+           bg-white/10 text-white/80;
+  }
+  
+  .spinner {
+    @apply w-12 h-12 border-2 border-bg-dark border-b-white 
+           rounded-full animate-spin;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400;
+  }
+  
+  .glass {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10;
+  }
+  
+  .hide-mobile {
+    @apply hidden lg:block;
+  }
+  
+  .show-mobile {
+    @apply block lg:hidden;
+  }
+}
