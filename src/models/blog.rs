@@ -1,37 +1,36 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub struct BlogMeta {
-    pub url_title: String,
-    pub title: String,
-    pub sub_title: String,
-    pub top_image: String,
-    pub visible: bool,
+pub struct BlogContentItem {
+    #[serde(rename = "type")]
+    pub content_type: String,
+    #[serde(default)]
+    pub text: Option<String>,
+    #[serde(default)]
+    pub src: Option<String>,
+    #[serde(default)]
+    pub alt: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct BlogPost {
-    pub slug: String,
+    pub id: String,
     pub title: String,
-    pub subtitle: String,
     pub date: String,
-    pub cover_image: String,
-    pub tags: Vec<String>,
-    pub content: String,
-    pub visible: bool,
+    pub summary: String,
+    pub top_image: String,
+    pub content: Vec<BlogContentItem>,
 }
 
-impl From<BlogMeta> for BlogPost {
-    fn from(meta: BlogMeta) -> Self {
+impl Default for BlogPost {
+    fn default() -> Self {
         Self {
-            slug: meta.url_title,
-            title: meta.title,
-            subtitle: meta.sub_title,
+            id: String::new(),
+            title: String::new(),
             date: String::new(),
-            cover_image: meta.top_image,
-            tags: Vec::new(),
-            content: String::new(),
-            visible: meta.visible,
+            summary: String::new(),
+            top_image: String::new(),
+            content: Vec::new(),
         }
     }
 }

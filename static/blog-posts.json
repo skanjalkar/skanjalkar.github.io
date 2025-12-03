@@ -1,0 +1,73 @@
+[
+  {
+    "id": "about-me",
+    "title": "About me",
+    "date": "2022-09-24",
+    "summary": "My journey from India to the states, my love for Dota2, and my growth as a programmer.",
+    "top_image": "/blog/about-me/top_image.jpeg",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This is long due... I have been delaying this for so long. I am Shreyas Kanjalkar, and the dog in my pfp is my cute dog. His name is Spiky, a part of my soul. I come from a small city, Aurangabad in India. I spent my entire childhood here. From kindergarten to high school, all of it was here."
+      },
+      {
+        "type": "paragraph",
+        "text": "I did my undergrad in Manipal Institute of Technology. The 4 years that I spent here were probably the best years of my life so far. If I were to be given a chance to relive something, I would choose these 4 years without a doubt. All the friends, relationships, mistakes, studies, parties, everything about this place was amazing. I do not regret a single thing about going here."
+      },
+      {
+        "type": "paragraph",
+        "text": "I graduated from Manipal in 2020. I was supposed to come to the states for my Masters in 2020 itself, but due to COVID I decided to defer my admission. Now I had one year in my hand. In this one year, I focused on my physical fitness, looked after my dog (he had very bad health conditions during these times) and spent times with my family. I also achieved something that was one of my life goals."
+      },
+      {
+        "type": "image",
+        "src": "/blog/about-me/img_0.jpeg",
+        "alt": "Spiky the dog"
+      },
+      {
+        "type": "paragraph",
+        "text": "If you've have ever heard of Dota2, then you will know what I am talking about. Dota2 is a MobA, and I love this game to the core. It is a love hate relationship. When COVID started, I think I was around legend 4 in medal. I never really played ranked, most of the times we played 5 man unranked party queue, goofing around but also trying to win. I think I started grinding ranked around January of 2021, and I reached immortal rank in July, just 15 days before coming to the states. It might not matter to most of the people, but it is one of my proudest achievements in my life."
+      },
+      {
+        "type": "image",
+        "src": "/blog/about-me/img_1.png",
+        "alt": "Dota2 Immortal Rank"
+      },
+      {
+        "type": "image",
+        "src": "/blog/about-me/img_2.png",
+        "alt": "Dota2 Stats"
+      },
+      {
+        "type": "paragraph",
+        "text": "You can add me on steam using my this link https://steamcommunity.com/id/EchizeNNN, although I am not really active since I've come to the states. I want to regrind to immortal once I graduate, hopefully without going bald."
+      },
+      {
+        "type": "paragraph",
+        "text": "Now comes August of 2022, I come to the states. My brother already works in the states, so it was not a complete stranger land to me. When I came to WPI, I had little to no experience in programming. And my first assignment when I started my MS in Robotics was in programming. Everything was overwhelming for me, someone who has never used ubuntu ever, someone who has written code which is extremely garbage and inefficient. But as I started down the journey of programming and robotics, I started to enjoy it more and more. Recently, I was grinding LeetCode questions to practice for job interviews. I came across a classic question of Two Sums on LeetCode. Take a look at these two images, it gave me a good laugh when I looked at it, and made me slightly happy. It showed progress in my programming understanding. This is just an example, but all my courses that I've taken at WPI are CS related. They all involved programming some way or another."
+      },
+      {
+        "type": "image",
+        "src": "/blog/about-me/img_3.png",
+        "alt": "LeetCode Two Sum - Before"
+      },
+      {
+        "type": "image",
+        "src": "/blog/about-me/img_4.png",
+        "alt": "LeetCode Two Sum - After"
+      },
+      {
+        "type": "paragraph",
+        "text": "Well that's where I am right now... currently trying to balance out studies and the struggles of job hunting along with changing my profile to Software Engineer worthy. I hope to keep on updating this blog soon. If you made it this far, cheers and hopefully we can stay connected."
+      },
+      {
+        "type": "image",
+        "src": "/blog/about-me/img_5.jpeg",
+        "alt": "Me"
+      },
+      {
+        "type": "paragraph",
+        "text": "See ya! :)"
+      }
+    ]
+  }
+]

@@ -1,30 +1,34 @@
-use crate::components::BlogCard;
-use crate::models::BlogPost;
+use crate::api::fetch_blog_posts;
+use crate::components::{BlogCard, Loading};
 use leptos::*;
 
 #[component]
 pub fn BlogPage() -> impl IntoView {
-    let posts = vec![BlogPost {
-        slug: "About-me".to_string(),
-        title: "About me".to_string(),
-        subtitle: "24th Sept 2022".to_string(),
-        date: "2022-09-24".to_string(),
-        cover_image: "top_image.jpeg".to_string(),
-        tags: vec![],
-        content: String::new(),
-        visible: true,
-    }];
+    let posts = create_local_resource(|| (), |_| async move { fetch_blog_posts().await });
 
     view! {
         <div>
             <h1 class="section-title">"Blog"</h1>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {posts.into_iter()
-                    .filter(|p| p.visible)
-                    .map(|post| view! { <BlogCard post=post /> })
-                    .collect_view()}
-            </div>
+            <Suspense fallback=move || view! { <Loading /> }>
+                {move || {
+                    posts.get().map(|posts| {
+                        if posts.is_empty() {
+                            view! {
+                                <p class="text-gray-400">"No blog posts yet."</p>
+                            }.into_view()
+                        } else {
+                            view! {
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {posts.into_iter()
+                                        .map(|post| view! { <BlogCard post=post /> })
+                                        .collect_view()}
+                                </div>
+                            }.into_view()
+                        }
+                    })
+                }}
+            </Suspense>
         </div>
     }
 }

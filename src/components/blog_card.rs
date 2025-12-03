@@ -3,15 +3,15 @@ use leptos::*;
 
 #[component]
 pub fn BlogCard(post: BlogPost) -> impl IntoView {
-    let blog_url = format!("/blog/{}", post.slug);
-    let image_url = format!("./blog/{}/{}", post.slug, post.cover_image);
+    let blog_url = format!("/blog/{}", post.id);
 
     view! {
         <a href={blog_url} class="blog-card">
-            <img src={image_url} alt={post.title.clone()} />
+            <img src={post.top_image.clone()} alt={post.title.clone()} />
             <div class="content">
                 <div class="title">{post.title}</div>
-                <div class="description">{post.subtitle}</div>
+                <div class="description">{post.summary}</div>
+                <div class="text-gray-500 text-sm mt-2">{post.date}</div>
             </div>
         </a>
     }
