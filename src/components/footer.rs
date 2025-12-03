@@ -3,13 +3,13 @@ use leptos::*;
 #[component]
 pub fn Footer() -> impl IntoView {
     view! {
-        <footer class="w-full py-8 text-center">
-            <a 
-                href="https://github.com/skanjalkar" 
-                target="_blank" 
-                class="text-white font-display font-bold no-underline hover:underline"
+        <footer class="fixed bottom-4 right-4 z-40">
+            <a
+                href="https://github.com/leptos-rs/leptos"
+                target="_blank"
+                class="text-gray-500 hover:text-white text-sm font-display transition-colors duration-200"
             >
-                "Built with Rust & Leptos"
+                "Built with Rust & Leptos 🦀"
             </a>
         </footer>
     }
