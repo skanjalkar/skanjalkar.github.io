@@ -3,38 +3,34 @@ use crate::models::Project;
 
 const GITHUB_API_BASE: &str = "https://api.github.com";
 
-#[derive(Debug)]
-pub struct ApiError(String);
-
-impl std::fmt::Display for ApiError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-pub async fn fetch_github_repos(username: &str) -> Result<Vec<Project>, ApiError> {
+pub async fn fetch_github_repos(username: &str) -> Vec<Project> {
     let url = format!(
         "{}/users/{}/repos?sort=updated&per_page=50",
         GITHUB_API_BASE, username
     );
     
-    let response = Request::get(&url)
+    let response = match Request::get(&url)
         .header("Accept", "application/vnd.github.v3+json")
         .send()
         .await
-        .map_err(|e| ApiError(format!("Network error: {}", e)))?;
+    {
+        Ok(resp) => resp,
+        Err(e) => {
+            log::error!("Network error fetching repos: {}", e);
+            return Vec::new();
+        }
+    };
     
     if !response.ok() {
-        return Err(ApiError(format!(
-            "GitHub API error: {}",
-            response.status()
-        )));
+        log::error!("GitHub API error: {}", response.status());
+        return Vec::new();
     }
     
-    let repos: Vec<Project> = response
-        .json()
-        .await
-        .map_err(|e| ApiError(format!("Parse error: {}", e)))?;
-    
-    Ok(repos.into_iter().filter(|r| !r.name.contains(".github")).collect())
+    match response.json::<Vec<Project>>().await {
+        Ok(repos) => repos.into_iter().filter(|r| !r.name.contains(".github")).collect(),
+        Err(e) => {
+            log::error!("Parse error: {}", e);
+            Vec::new()
+        }
+    }
 }
