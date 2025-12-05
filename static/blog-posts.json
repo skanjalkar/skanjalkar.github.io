@@ -4,7 +4,7 @@
     "title": "About me",
     "date": "2022-09-24",
     "summary": "My journey from India to the states, my love for Dota2, and my growth as a programmer.",
-    "top_image": "/blog/about-me/top_image.jpeg",
+    "top_image": "/static/blog/about-me/top_image.jpeg",
     "content": [
       {
         "type": "paragraph",
@@ -20,7 +20,7 @@
       },
       {
         "type": "image",
-        "src": "/blog/about-me/img_0.jpeg",
+        "src": "/static/blog/about-me/img_0.jpeg",
         "alt": "Spiky the dog"
       },
       {
@@ -29,12 +29,12 @@
       },
       {
         "type": "image",
-        "src": "/blog/about-me/img_1.png",
+        "src": "/static/blog/about-me/img_1.png",
         "alt": "Dota2 Immortal Rank"
       },
       {
         "type": "image",
-        "src": "/blog/about-me/img_2.png",
+        "src": "/static/blog/about-me/img_2.png",
         "alt": "Dota2 Stats"
       },
       {
@@ -47,12 +47,12 @@
       },
       {
         "type": "image",
-        "src": "/blog/about-me/img_3.png",
+        "src": "/static/blog/about-me/img_3.png",
         "alt": "LeetCode Two Sum - Before"
       },
       {
         "type": "image",
-        "src": "/blog/about-me/img_4.png",
+        "src": "/static/blog/about-me/img_4.png",
         "alt": "LeetCode Two Sum - After"
       },
       {
@@ -61,7 +61,7 @@
       },
       {
         "type": "image",
-        "src": "/blog/about-me/img_5.jpeg",
+        "src": "/static/blog/about-me/img_5.jpeg",
         "alt": "Me"
       },
       {

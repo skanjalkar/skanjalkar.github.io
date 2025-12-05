@@ -35,6 +35,9 @@
     <!-- Tailwind CSS (processed by trunk) -->
     <link data-trunk rel="css" href="styles/output.css" />
     
+    <!-- Copy static assets to dist folder -->
+    <link data-trunk rel="copy-dir" href="static" />
+    
     <!-- WASM application - specify the binary target -->
     <link data-trunk rel="rust" data-bin="skanjalkar-portfolio" data-wasm-opt="z" />
   </head>

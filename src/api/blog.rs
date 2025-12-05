@@ -2,7 +2,7 @@ use crate::models::BlogPost;
 use gloo_net::http::Request;
 
 pub async fn fetch_blog_posts() -> Vec<BlogPost> {
-    match Request::get("/blog-posts.json").send().await {
+    match Request::get("/static/blog-posts.json").send().await {
         Ok(response) => match response.json::<Vec<BlogPost>>().await {
             Ok(posts) => posts,
             Err(e) => {
