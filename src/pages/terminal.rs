@@ -1,5 +1,5 @@
-use leptos::*;
 use leptos::html::Input;
+use leptos::*;
 
 #[derive(Clone, Debug)]
 struct TerminalLine {
@@ -25,7 +25,8 @@ pub fn TerminalPage() -> impl IntoView {
     // Welcome message
     create_effect(move |_| {
         set_history.set(vec![
-            TerminalLine { content: r#"
+            TerminalLine {
+                content: r#"
   _____ _                                _  __            _       _ _             
  / ____| |                              | |/ /           (_)     | | |            
 | (___ | |__  _ __ ___ _   _  __ _ ___  | ' / __ _ _ __   _  __ _| | | ____ _ _ __ 
@@ -34,10 +35,22 @@ pub fn TerminalPage() -> impl IntoView {
 |_____/|_| |_|_|  \___|\__, |\__,_|___/ |_|\_\__,_|_| |_|/ |\__,_|_|_|\_\__,_|_|   
                         __/ |                          |__/                        
                        |___/                                                       
-"#.to_string(), is_command: false },
-            TerminalLine { content: "Welcome to my interactive portfolio terminal!".to_string(), is_command: false },
-            TerminalLine { content: "Type 'help' to see available commands.".to_string(), is_command: false },
-            TerminalLine { content: "".to_string(), is_command: false },
+"#
+                .to_string(),
+                is_command: false,
+            },
+            TerminalLine {
+                content: "Welcome to my interactive portfolio terminal!".to_string(),
+                is_command: false,
+            },
+            TerminalLine {
+                content: "Type 'help' to see available commands.".to_string(),
+                is_command: false,
+            },
+            TerminalLine {
+                content: "".to_string(),
+                is_command: false,
+            },
         ]);
     });
 
@@ -227,10 +240,7 @@ pub fn TerminalPage() -> impl IntoView {
                 "-rw-r--r--  resume.pdf".to_string(),
                 "".to_string(),
             ],
-            "whoami" => vec![
-                "shreyas_kanjalkar".to_string(),
-                "".to_string(),
-            ],
+            "whoami" => vec!["shreyas_kanjalkar".to_string(), "".to_string()],
             "neofetch" => vec![
                 "".to_string(),
                 "        ⬛⬛⬛⬛⬛⬛⬛⬛          shreyas@portfolio".to_string(),
@@ -249,15 +259,21 @@ pub fn TerminalPage() -> impl IntoView {
             "open" => {
                 if args.len() > 1 {
                     match args[1] {
-                        "projects" => vec!["Navigating to /projects...".to_string(), "".to_string()],
+                        "projects" => {
+                            vec!["Navigating to /projects...".to_string(), "".to_string()]
+                        }
                         "blog" => vec!["Navigating to /blog...".to_string(), "".to_string()],
                         "home" => vec!["Navigating to /...".to_string(), "".to_string()],
                         _ => vec![format!("Unknown destination: {}", args[1]), "".to_string()],
                     }
                 } else {
-                    vec!["Usage: open <destination>".to_string(), "Destinations: projects, blog, home".to_string(), "".to_string()]
+                    vec![
+                        "Usage: open <destination>".to_string(),
+                        "Destinations: projects, blog, home".to_string(),
+                        "".to_string(),
+                    ]
                 }
-            },
+            }
             "sudo" => vec![
                 "Nice try! 😄".to_string(),
                 "But you don't have root access here.".to_string(),
@@ -273,22 +289,16 @@ pub fn TerminalPage() -> impl IntoView {
                 "".to_string(),
             ],
             "date" => {
-                vec![
-                    "Terminal time: Right now! ⏰".to_string(),
-                    "".to_string(),
-                ]
-            },
+                vec!["Terminal time: Right now! ⏰".to_string(), "".to_string()]
+            }
             "echo" => {
                 if args.len() > 1 {
                     vec![args[1..].join(" "), "".to_string()]
                 } else {
                     vec!["".to_string()]
                 }
-            },
-            "pwd" => vec![
-                "/home/shreyas/portfolio".to_string(),
-                "".to_string(),
-            ],
+            }
+            "pwd" => vec!["/home/shreyas/portfolio".to_string(), "".to_string()],
             "cat" => {
                 if args.len() > 1 {
                     match args[1] {
@@ -296,18 +306,18 @@ pub fn TerminalPage() -> impl IntoView {
                             "📄 Binary file - use 'resume' command to download".to_string(),
                             "".to_string(),
                         ],
-                        _ => vec![
-                            format!("cat: {}: No such file", args[1]),
-                            "".to_string(),
-                        ],
+                        _ => vec![format!("cat: {}: No such file", args[1]), "".to_string()],
                     }
                 } else {
                     vec!["Usage: cat <filename>".to_string(), "".to_string()]
                 }
-            },
+            }
             "" => vec![],
             _ => vec![
-                format!("Command not found: {}. Type 'help' for available commands.", command),
+                format!(
+                    "Command not found: {}. Type 'help' for available commands.",
+                    command
+                ),
                 "".to_string(),
             ],
         };
@@ -350,39 +360,37 @@ pub fn TerminalPage() -> impl IntoView {
         set_current_input.set(String::new());
     };
 
-    let handle_keydown = move |ev: ev::KeyboardEvent| {
-        match ev.key().as_str() {
-            "ArrowUp" => {
-                ev.prevent_default();
-                let cmds = command_history.get();
-                if !cmds.is_empty() {
-                    let new_index = if history_index.get() < 0 {
-                        cmds.len() as i32 - 1
-                    } else {
-                        (history_index.get() - 1).max(0)
-                    };
-                    set_history_index.set(new_index);
-                    if let Some(cmd) = cmds.get(new_index as usize) {
-                        set_current_input.set(cmd.clone());
-                    }
-                }
-            }
-            "ArrowDown" => {
-                ev.prevent_default();
-                let cmds = command_history.get();
-                let new_index = history_index.get() + 1;
-                if new_index >= cmds.len() as i32 {
-                    set_history_index.set(-1);
-                    set_current_input.set(String::new());
+    let handle_keydown = move |ev: ev::KeyboardEvent| match ev.key().as_str() {
+        "ArrowUp" => {
+            ev.prevent_default();
+            let cmds = command_history.get();
+            if !cmds.is_empty() {
+                let new_index = if history_index.get() < 0 {
+                    cmds.len() as i32 - 1
                 } else {
-                    set_history_index.set(new_index);
-                    if let Some(cmd) = cmds.get(new_index as usize) {
-                        set_current_input.set(cmd.clone());
-                    }
+                    (history_index.get() - 1).max(0)
+                };
+                set_history_index.set(new_index);
+                if let Some(cmd) = cmds.get(new_index as usize) {
+                    set_current_input.set(cmd.clone());
                 }
             }
-            _ => {}
         }
+        "ArrowDown" => {
+            ev.prevent_default();
+            let cmds = command_history.get();
+            let new_index = history_index.get() + 1;
+            if new_index >= cmds.len() as i32 {
+                set_history_index.set(-1);
+                set_current_input.set(String::new());
+            } else {
+                set_history_index.set(new_index);
+                if let Some(cmd) = cmds.get(new_index as usize) {
+                    set_current_input.set(cmd.clone());
+                }
+            }
+        }
+        _ => {}
     };
 
     // Click anywhere to focus input
