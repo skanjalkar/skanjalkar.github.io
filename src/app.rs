@@ -3,7 +3,7 @@ use leptos_meta::*;
 use leptos_router::*;
 
 use crate::components::Layout;
-use crate::pages::{BlogPage, BlogPostPage, HomePage, NotFoundPage, ProjectsPage};
+use crate::pages::{BlogPage, BlogPostPage, HomePage, NotFoundPage, ProjectsPage, TerminalPage};
 use crate::state::AppStateProvider;
 
 #[component]
@@ -22,6 +22,7 @@ pub fn App() -> impl IntoView {
                         <Route path="/projects" view=ProjectsPage/>
                         <Route path="/blog" view=BlogPage/>
                         <Route path="/blog/:slug" view=BlogPostPage/>
+                        <Route path="/terminal" view=TerminalPage/>
                         <Route path="/*any" view=NotFoundPage/>
                     </Routes>
                 </Layout>

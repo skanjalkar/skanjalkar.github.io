@@ -72,6 +72,10 @@ pub fn Sidebar() -> impl IntoView {
                     <A href="/" class="link hover:text-gray-300">"Home"</A>
                     <A href="/projects" class="link hover:text-gray-300">"Projects"</A>
                     <A href="/blog" class="link hover:text-gray-300">"Blog"</A>
+                    <A href="/terminal" class="link hover:text-gray-300 flex items-center gap-2">
+                        <Icon icon="terminal" />
+                        "Terminal"
+                    </A>
                 </nav>
             </div>
         </aside>
