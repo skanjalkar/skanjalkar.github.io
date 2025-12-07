@@ -22,6 +22,8 @@ enum CdDestination {
 }
 
 impl CdDestination {
+    const DIRECTORIES: [&'static str; 3] = ["blog", "home", "projects"];
+
     fn parse(s: &str) -> Option<Self> {
         match s.to_lowercase().as_str() {
             "projects" => Some(Self::Projects),
@@ -37,6 +39,14 @@ impl CdDestination {
             Self::Blog => "/blog",
             Self::Home => "/",
         }
+    }
+
+    fn complete(partial: &str) -> Option<&'static str> {
+        let partial_lower = partial.to_lowercase();
+        Self::DIRECTORIES
+            .iter()
+            .find(|dir| dir.starts_with(&partial_lower))
+            .copied()
     }
 }
 
@@ -215,6 +225,17 @@ pub fn TerminalPage() -> impl IntoView {
     };
 
     let handle_keydown = move |ev: ev::KeyboardEvent| match ev.key().as_str() {
+        "Tab" => {
+            ev.prevent_default();
+            let input = current_input.get();
+            let Some(partial) = input.strip_prefix("cd ") else {
+                return;
+            };
+            let Some(completed) = CdDestination::complete(partial) else {
+                return;
+            };
+            set_current_input.set(format!("cd {}", completed));
+        }
         "ArrowUp" => {
             ev.prevent_default();
             let cmds = command_history.get();

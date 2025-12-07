@@ -12,7 +12,7 @@ pub fn App() -> impl IntoView {
 
     view! {
         <Title text="Shreyas Kanjalkar | Software Engineer"/>
-        <Meta name="description" content="MS CS student at Georgia Tech, Software Engineer passionate about distributed systems and cloud computing."/>
+        <Meta name="description" content="Software Engineer at AWS DSQL Storage passionate about distributed systems and cloud computing."/>
 
         <AppStateProvider>
             <Router>
