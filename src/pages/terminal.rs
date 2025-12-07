@@ -1,6 +1,5 @@
 use leptos::html::{Div, Input};
 use leptos::*;
-use leptos_router::use_navigate;
 
 #[derive(Clone, Debug, PartialEq)]
 enum LineType {
@@ -37,7 +36,7 @@ impl CdDestination {
         match self {
             Self::Projects => "/projects",
             Self::Blog => "/blog",
-            Self::Home => "/",
+            Self::Home => "/home",
         }
     }
 
@@ -138,7 +137,6 @@ pub fn TerminalPage() -> impl IntoView {
     let (history_index, set_history_index) = create_signal(-1i32);
     let input_ref = create_node_ref::<Input>();
     let output_ref = create_node_ref::<Div>();
-    let navigate = use_navigate();
 
     // Auto-focus input on mount
     create_effect(move |_| {
@@ -204,10 +202,11 @@ pub fn TerminalPage() -> impl IntoView {
             // Navigate after updating history
             if let Some(dest) = nav_dest {
                 let path = dest.path().to_string();
-                let navigate = navigate.clone();
                 set_timeout(
                     move || {
-                        navigate(&path, Default::default());
+                        if let Some(window) = web_sys::window() {
+                            let _ = window.location().set_href(&path);
+                        }
                     },
                     std::time::Duration::from_millis(300),
                 );

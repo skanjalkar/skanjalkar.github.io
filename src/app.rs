@@ -16,16 +16,14 @@ pub fn App() -> impl IntoView {
 
         <AppStateProvider>
             <Router>
-                <Layout>
-                    <Routes>
-                        <Route path="/" view=HomePage/>
-                        <Route path="/projects" view=ProjectsPage/>
-                        <Route path="/blog" view=BlogPage/>
-                        <Route path="/blog/:slug" view=BlogPostPage/>
-                        <Route path="/terminal" view=TerminalPage/>
-                        <Route path="/*any" view=NotFoundPage/>
-                    </Routes>
-                </Layout>
+                <Routes>
+                    <Route path="/" view=TerminalPage/>
+                    <Route path="/home" view=|| view! { <Layout><HomePage/></Layout> }/>
+                    <Route path="/projects" view=|| view! { <Layout><ProjectsPage/></Layout> }/>
+                    <Route path="/blog" view=|| view! { <Layout><BlogPage/></Layout> }/>
+                    <Route path="/blog/:slug" view=|| view! { <Layout><BlogPostPage/></Layout> }/>
+                    <Route path="/*any" view=|| view! { <Layout><NotFoundPage/></Layout> }/>
+                </Routes>
             </Router>
         </AppStateProvider>
     }
