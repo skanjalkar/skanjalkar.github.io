@@ -111,7 +111,10 @@ fn execute_command(cmd: &Command) -> (Vec<String>, Option<CdDestination>) {
         Command::Clear => (vec![], None),
         Command::Empty => (vec![], None),
         Command::Unknown(cmd) => (
-            vec![format!("{}: command not found. Type 'help' for available commands.", cmd)],
+            vec![format!(
+                "{}: command not found. Type 'help' for available commands.",
+                cmd
+            )],
             None,
         ),
     }
@@ -146,7 +149,8 @@ pub fn TerminalPage() -> impl IntoView {
     create_effect(move |_| {
         set_history.set(vec![
             TerminalLine {
-                content: "Welcome! Type 'help' for commands or 'ls' to see directories.".to_string(),
+                content: "Welcome! Type 'help' for commands or 'ls' to see directories."
+                    .to_string(),
                 line_type: LineType::Output,
             },
             TerminalLine {
@@ -210,40 +214,38 @@ pub fn TerminalPage() -> impl IntoView {
         set_current_input.set(String::new());
     };
 
-    let handle_keydown = move |ev: ev::KeyboardEvent| {
-        match ev.key().as_str() {
-            "ArrowUp" => {
-                ev.prevent_default();
-                let cmds = command_history.get();
-                if cmds.is_empty() {
-                    return;
-                }
-                let new_index = if history_index.get() < 0 {
-                    cmds.len() as i32 - 1
-                } else {
-                    (history_index.get() - 1).max(0)
-                };
-                set_history_index.set(new_index);
-                if let Some(cmd) = cmds.get(new_index as usize) {
-                    set_current_input.set(cmd.clone());
-                }
+    let handle_keydown = move |ev: ev::KeyboardEvent| match ev.key().as_str() {
+        "ArrowUp" => {
+            ev.prevent_default();
+            let cmds = command_history.get();
+            if cmds.is_empty() {
+                return;
             }
-            "ArrowDown" => {
-                ev.prevent_default();
-                let cmds = command_history.get();
-                let new_index = history_index.get() + 1;
-                if new_index >= cmds.len() as i32 {
-                    set_history_index.set(-1);
-                    set_current_input.set(String::new());
-                    return;
-                }
-                set_history_index.set(new_index);
-                if let Some(cmd) = cmds.get(new_index as usize) {
-                    set_current_input.set(cmd.clone());
-                }
+            let new_index = if history_index.get() < 0 {
+                cmds.len() as i32 - 1
+            } else {
+                (history_index.get() - 1).max(0)
+            };
+            set_history_index.set(new_index);
+            if let Some(cmd) = cmds.get(new_index as usize) {
+                set_current_input.set(cmd.clone());
             }
-            _ => {}
         }
+        "ArrowDown" => {
+            ev.prevent_default();
+            let cmds = command_history.get();
+            let new_index = history_index.get() + 1;
+            if new_index >= cmds.len() as i32 {
+                set_history_index.set(-1);
+                set_current_input.set(String::new());
+                return;
+            }
+            set_history_index.set(new_index);
+            if let Some(cmd) = cmds.get(new_index as usize) {
+                set_current_input.set(cmd.clone());
+            }
+        }
+        _ => {}
     };
 
     let focus_input = move |_| {
