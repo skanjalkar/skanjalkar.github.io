@@ -175,6 +175,14 @@
     @apply text-[#00ff88] font-semibold;
   }
 
+  .terminal-line.debug {
+    @apply text-[#ffaa00] opacity-80 text-xs;
+  }
+
+  .terminal-line.debug pre {
+    @apply text-xs;
+  }
+
   .terminal-input-line {
     @apply flex items-center gap-2 mt-2;
   }
