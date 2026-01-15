@@ -1,6 +1,57 @@
 use leptos::html::{Div, Input};
 use leptos::*;
 
+// Virtual file system for cat command
+fn get_virtual_file(name: &str) -> Option<Vec<String>> {
+    match name.to_lowercase().as_str() {
+        "about.txt" | "about" => Some(vec![
+            "=== About Shreyas Kanjalkar ===".to_string(),
+            "".to_string(),
+            "Software Engineer passionate about distributed systems".to_string(),
+            "and cloud computing.".to_string(),
+            "".to_string(),
+            "Education:".to_string(),
+            "  - MS Computer Science @ Georgia Tech".to_string(),
+            "  - MS Robotics @ WPI".to_string(),
+            "  - BE Mechanical Engineering @ Manipal".to_string(),
+            "".to_string(),
+            "Type 'cd home' to learn more!".to_string(),
+        ]),
+        "skills.txt" | "skills" => Some(vec![
+            "=== Technical Skills ===".to_string(),
+            "".to_string(),
+            "Languages:    Rust, Go, Python, TypeScript, Java".to_string(),
+            "Cloud:        AWS, GCP, Kubernetes, Docker".to_string(),
+            "Systems:      Distributed Systems, Microservices".to_string(),
+            "Frameworks:   Leptos, React, Actix, gRPC".to_string(),
+            "Databases:    PostgreSQL, Redis, DynamoDB".to_string(),
+            "Tools:        Git, Linux, Terraform, CI/CD".to_string(),
+        ]),
+        "interests.txt" | "interests" => Some(vec![
+            "=== Interests & Hobbies ===".to_string(),
+            "".to_string(),
+            "Chess       - Always up for a game!".to_string(),
+            "Formula 1   - McLaren fan".to_string(),
+            "Dota 2      - Casual player".to_string(),
+            "osu!        - Click the circles".to_string(),
+        ]),
+        "contact.txt" | "contact" => Some(vec![
+            "=== Contact Information ===".to_string(),
+            "".to_string(),
+            "Email:    skanjalkar [at] gmail.com".to_string(),
+            "GitHub:   github.com/skanjalkar".to_string(),
+            "LinkedIn: linkedin.com/in/skanjalkar".to_string(),
+            "".to_string(),
+            "Type 'social' for clickable links!".to_string(),
+        ]),
+        _ => None,
+    }
+}
+
+fn get_available_files() -> Vec<&'static str> {
+    vec!["about.txt", "skills.txt", "interests.txt", "contact.txt"]
+}
+
 #[derive(Clone, Debug, PartialEq)]
 enum LineType {
     Command,
@@ -56,6 +107,13 @@ enum Command {
     Pwd,
     Help,
     Clear,
+    Cat(Option<String>),
+    Whoami,
+    Tree,
+    Neofetch,
+    Social,
+    Echo(String),
+    Date,
     Empty,
     Unknown(String),
 }
@@ -65,6 +123,8 @@ impl Command {
         let parts: Vec<&str> = input.split_whitespace().collect();
         let cmd = parts.first().copied().unwrap_or("");
         let arg = parts.get(1).map(|s| s.to_string());
+        // For echo, capture everything after "echo "
+        let echo_content = input.strip_prefix("echo ").map(|s| s.to_string());
 
         match cmd.to_lowercase().as_str() {
             "cd" => Self::Cd(arg),
@@ -72,6 +132,13 @@ impl Command {
             "pwd" => Self::Pwd,
             "help" => Self::Help,
             "clear" => Self::Clear,
+            "cat" => Self::Cat(arg),
+            "whoami" => Self::Whoami,
+            "tree" => Self::Tree,
+            "neofetch" | "fetch" => Self::Neofetch,
+            "social" | "socials" => Self::Social,
+            "echo" => Self::Echo(echo_content.unwrap_or_default()),
+            "date" => Self::Date,
             "" => Self::Empty,
             other => Self::Unknown(other.to_string()),
         }
@@ -102,18 +169,123 @@ fn execute_command(cmd: &Command) -> (Vec<String>, Option<CdDestination>) {
                 "drwxr-xr-x  blog/".to_string(),
                 "drwxr-xr-x  projects/".to_string(),
                 "drwxr-xr-x  home/".to_string(),
+                "-rw-r--r--  about.txt".to_string(),
+                "-rw-r--r--  skills.txt".to_string(),
+                "-rw-r--r--  interests.txt".to_string(),
+                "-rw-r--r--  contact.txt".to_string(),
             ],
             None,
         ),
         Command::Pwd => (vec!["/home/shreyas".to_string()], None),
+        Command::Cat(None) => (
+            vec![
+                "Usage: cat <file>".to_string(),
+                format!("Available files: {}", get_available_files().join(", ")),
+            ],
+            None,
+        ),
+        Command::Cat(Some(filename)) => {
+            if let Some(content) = get_virtual_file(filename) {
+                (content, None)
+            } else {
+                (vec![format!("cat: {}: No such file", filename)], None)
+            }
+        }
+        Command::Whoami => (
+            vec![
+                "shreyas".to_string(),
+                "".to_string(),
+                "Shreyas Kanjalkar".to_string(),
+                "Software Engineer | Distributed Systems Enthusiast".to_string(),
+                "Currently pursuing MS CS @ Georgia Tech".to_string(),
+            ],
+            None,
+        ),
+        Command::Tree => (
+            vec![
+                ".".to_string(),
+                "|-- blog/".to_string(),
+                "|   |-- about-me".to_string(),
+                "|   `-- ... (more posts)".to_string(),
+                "|-- projects/".to_string(),
+                "|   `-- (GitHub repositories)".to_string(),
+                "|-- home/".to_string(),
+                "|   `-- (About page)".to_string(),
+                "|-- about.txt".to_string(),
+                "|-- skills.txt".to_string(),
+                "|-- interests.txt".to_string(),
+                "`-- contact.txt".to_string(),
+                "".to_string(),
+                "3 directories, 4 files".to_string(),
+            ],
+            None,
+        ),
+        Command::Neofetch => {
+            let lines: Vec<String> = vec![
+                "".to_string(),
+                "   _____ _  __      shreyas@portfolio".to_string(),
+                "  / ____| |/ /      -----------------".to_string(),
+                " | (___ | ' /       OS: WebAssembly/Leptos".to_string(),
+                "  \\___ \\|  <        Host: GitHub Pages".to_string(),
+                "  ____) | . \\       Shell: shreyas-term 1.0".to_string(),
+                " |_____/|_|\\_\\      Theme: Dark Mode".to_string(),
+                "                    Languages: Rust, Go, Python".to_string(),
+                "                    Uptime: since 2024".to_string(),
+                "                    ".to_string(),
+                "                    Contact: skanjalkar@gmail.com".to_string(),
+                "".to_string(),
+            ];
+            (lines, None)
+        }
+        Command::Social => (
+            vec![
+                "=== Social Links ===".to_string(),
+                "".to_string(),
+                "GitHub:   https://github.com/skanjalkar".to_string(),
+                "LinkedIn: https://linkedin.com/in/skanjalkar".to_string(),
+                "Email:    skanjalkar@gmail.com".to_string(),
+                "".to_string(),
+                "Tip: Use 'cd projects' to see my GitHub repos!".to_string(),
+            ],
+            None,
+        ),
+        Command::Echo(text) => {
+            if text.is_empty() {
+                (vec!["".to_string()], None)
+            } else {
+                (vec![text.clone()], None)
+            }
+        }
+        Command::Date => {
+            // Get current date - in WASM we'll use a simple format
+            let now = chrono::Local::now();
+            (vec![now.format("%a %b %d %H:%M:%S %Y").to_string()], None)
+        }
         Command::Help => (
             vec![
                 "Available commands:".to_string(),
-                "  cd <dir>  - Navigate to directory (blog, projects, home)".to_string(),
-                "  ls        - List directories".to_string(),
-                "  pwd       - Print working directory".to_string(),
-                "  clear     - Clear terminal".to_string(),
-                "  help      - Show this message".to_string(),
+                "".to_string(),
+                "  Navigation:".to_string(),
+                "    cd <dir>    Navigate to directory (blog, projects, home)".to_string(),
+                "    ls          List files and directories".to_string(),
+                "    pwd         Print working directory".to_string(),
+                "    tree        Show directory structure".to_string(),
+                "".to_string(),
+                "  Information:".to_string(),
+                "    cat <file>  Display file contents (try: about.txt, skills.txt)".to_string(),
+                "    whoami      Display user information".to_string(),
+                "    neofetch    Display system info with ASCII art".to_string(),
+                "    social      Show social media links".to_string(),
+                "".to_string(),
+                "  Utilities:".to_string(),
+                "    echo <text> Print text to terminal".to_string(),
+                "    date        Show current date and time".to_string(),
+                "    clear       Clear terminal screen".to_string(),
+                "    help        Show this message".to_string(),
+                "".to_string(),
+                "  Tips:".to_string(),
+                "    - Use Tab to autocomplete 'cd' commands".to_string(),
+                "    - Use Up/Down arrows for command history".to_string(),
             ],
             None,
         ),
@@ -157,7 +329,11 @@ pub fn TerminalPage() -> impl IntoView {
     create_effect(move |_| {
         set_history.set(vec![
             TerminalLine {
-                content: "Welcome! Type 'help' for commands or 'ls' to see directories."
+                content: "Welcome to shreyas@portfolio! Type 'help' for all commands.".to_string(),
+                line_type: LineType::Output,
+            },
+            TerminalLine {
+                content: "Try 'neofetch' for a quick intro or 'cat about.txt' to learn more."
                     .to_string(),
                 line_type: LineType::Output,
             },
@@ -227,13 +403,23 @@ pub fn TerminalPage() -> impl IntoView {
         "Tab" => {
             ev.prevent_default();
             let input = current_input.get();
-            let Some(partial) = input.strip_prefix("cd ") else {
-                return;
-            };
-            let Some(completed) = CdDestination::complete(partial) else {
-                return;
-            };
-            set_current_input.set(format!("cd {}", completed));
+
+            // Tab completion for cd command
+            if let Some(partial) = input.strip_prefix("cd ") {
+                if let Some(completed) = CdDestination::complete(partial) {
+                    set_current_input.set(format!("cd {}", completed));
+                    return;
+                }
+            }
+
+            // Tab completion for cat command
+            if let Some(partial) = input.strip_prefix("cat ") {
+                let partial_lower = partial.to_lowercase();
+                let files = get_available_files();
+                if let Some(completed) = files.iter().find(|f| f.starts_with(&partial_lower)) {
+                    set_current_input.set(format!("cat {}", completed));
+                }
+            }
         }
         "ArrowUp" => {
             ev.prevent_default();
