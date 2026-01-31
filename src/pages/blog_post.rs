@@ -13,7 +13,7 @@ pub fn BlogPostPage() -> impl IntoView {
 
     view! {
         <div>
-            <a href="/blog" class="flex items-center gap-2 text-gray-400 hover:text-white mb-6">
+            <a href="/blog" class="flex items-center gap-2 text-gray-400 hover:text-white mb-6 link-animated animate-fade-in-left">
                 <Icon icon="arrow-left" />
                 "Back to Blog"
             </a>
@@ -25,13 +25,13 @@ pub fn BlogPostPage() -> impl IntoView {
                             Some(post) => view! {
                                 <article class="max-w-3xl">
                                     <div
-                                        class="w-full h-64 rounded-lg bg-cover bg-center bg-no-repeat mb-8"
+                                        class="w-full h-64 rounded-lg bg-cover bg-center bg-no-repeat mb-8 animate-fade-in-up hover-glow"
                                         style=format!("background-image: url('{}')", post.top_image)
                                     />
-                                    <h1 class="section-title mb-2">{post.title}</h1>
-                                    <p class="text-gray-500 mb-8">{post.date}</p>
+                                    <h1 class="section-title section-title-animated mb-2 animate-fade-in-up stagger-1">{post.title}</h1>
+                                    <p class="text-gray-500 mb-8 animate-fade-in-up stagger-2">{post.date}</p>
 
-                                    <div class="space-y-6">
+                                    <div class="space-y-6 animate-fade-in-up stagger-3">
                                         {post.content.into_iter().map(|item| {
                                             render_content_item(item)
                                         }).collect_view()}
@@ -39,7 +39,7 @@ pub fn BlogPostPage() -> impl IntoView {
                                 </article>
                             }.into_view(),
                             None => view! {
-                                <div class="text-center">
+                                <div class="text-center animate-fade-in">
                                     <h1 class="section-title">"Post Not Found"</h1>
                                     <p class="text-gray-400">"The blog post you're looking for doesn't exist."</p>
                                 </div>

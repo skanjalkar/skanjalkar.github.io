@@ -114,6 +114,13 @@ enum Command {
     Social,
     Echo(String),
     Date,
+    Fortune,
+    Cowsay(String),
+    Coffee,
+    Sl,
+    Matrix,
+    Sudo(String),
+    Rm(String),
     Empty,
     Unknown(String),
 }
@@ -125,6 +132,13 @@ impl Command {
         let arg = parts.get(1).map(|s| s.to_string());
         // For echo, capture everything after "echo "
         let echo_content = input.strip_prefix("echo ").map(|s| s.to_string());
+
+        // For cowsay, capture everything after "cowsay "
+        let cowsay_content = input.strip_prefix("cowsay ").map(|s| s.to_string());
+        // For sudo, capture everything after "sudo "
+        let sudo_content = input.strip_prefix("sudo ").map(|s| s.to_string());
+        // For rm, capture everything after "rm "
+        let rm_content = input.strip_prefix("rm ").map(|s| s.to_string());
 
         match cmd.to_lowercase().as_str() {
             "cd" => Self::Cd(arg),
@@ -139,6 +153,13 @@ impl Command {
             "social" | "socials" => Self::Social,
             "echo" => Self::Echo(echo_content.unwrap_or_default()),
             "date" => Self::Date,
+            "fortune" => Self::Fortune,
+            "cowsay" => Self::Cowsay(cowsay_content.unwrap_or_else(|| "moo".to_string())),
+            "coffee" => Self::Coffee,
+            "sl" => Self::Sl,
+            "matrix" | "cmatrix" => Self::Matrix,
+            "sudo" => Self::Sudo(sudo_content.unwrap_or_default()),
+            "rm" => Self::Rm(rm_content.unwrap_or_default()),
             "" => Self::Empty,
             other => Self::Unknown(other.to_string()),
         }
@@ -283,12 +304,182 @@ fn execute_command(cmd: &Command) -> (Vec<String>, Option<CdDestination>) {
                 "    clear       Clear terminal screen".to_string(),
                 "    help        Show this message".to_string(),
                 "".to_string(),
+                "  Fun stuff:".to_string(),
+                "    fortune     Get a random programming wisdom".to_string(),
+                "    cowsay <msg> Make a cow say something".to_string(),
+                "    coffee      Brew some ASCII coffee".to_string(),
+                "    sl          Choo choo!".to_string(),
+                "    matrix      Enter the matrix".to_string(),
+                "".to_string(),
                 "  Tips:".to_string(),
                 "    - Use Tab to autocomplete 'cd' commands".to_string(),
                 "    - Use Up/Down arrows for command history".to_string(),
             ],
             None,
         ),
+        Command::Fortune => {
+            let fortunes = [
+                "There are only two hard things in Computer Science: cache invalidation and naming things.",
+                "It works on my machine.",
+                "99 little bugs in the code, 99 little bugs. Take one down, patch it around... 127 little bugs in the code.",
+                "A SQL query walks into a bar, walks up to two tables and asks... 'Can I join you?'",
+                "To understand recursion, you must first understand recursion.",
+                "The best thing about a boolean is even if you are wrong, you are only off by a bit.",
+                "Programming is like writing a book... except if you miss a single comma on page 126, the whole thing makes no sense.",
+                "In order to understand recursion, one must first understand recursion.",
+                "Why do programmers prefer dark mode? Because light attracts bugs.",
+                "A programmer is a machine that turns coffee into code.",
+                "Real programmers count from 0.",
+                "There's no place like 127.0.0.1",
+                "SELECT * FROM users WHERE clue > 0;  -- 0 rows returned",
+                "The code works, don't touch it.",
+                "// TODO: fix this later (written 3 years ago)",
+                "git commit -m 'fixed bug' (narrator: it did not fix the bug)",
+            ];
+            // Simple pseudo-random based on current time
+            let now = chrono::Local::now();
+            let idx = (now.timestamp_millis() as usize) % fortunes.len();
+            (
+                vec![
+                    "".to_string(),
+                    format!("  \"{}\"", fortunes[idx]),
+                    "".to_string(),
+                ],
+                None,
+            )
+        }
+        Command::Cowsay(message) => {
+            let msg = if message.is_empty() { "moo" } else { &message };
+            let border_len = msg.len() + 2;
+            let border: String = "-".repeat(border_len);
+            (
+                vec![
+                    format!(" {}", border),
+                    format!("< {} >", msg),
+                    format!(" {}", border),
+                    "        \\   ^__^".to_string(),
+                    "         \\  (oo)\\_______".to_string(),
+                    "            (__)\\       )\\/\\".to_string(),
+                    "                ||----w |".to_string(),
+                    "                ||     ||".to_string(),
+                ],
+                None,
+            )
+        }
+        Command::Coffee => (
+            vec![
+                "".to_string(),
+                "        ( (     ".to_string(),
+                "         ) )    ".to_string(),
+                "      ........  ".to_string(),
+                "      |      |] ".to_string(),
+                "      \\      /  ".to_string(),
+                "       `----'   ".to_string(),
+                "".to_string(),
+                "  Brewing fresh coffee...".to_string(),
+                "  [##########] 100%".to_string(),
+                "".to_string(),
+                "  Here's your coffee! Now go write some code.".to_string(),
+                "".to_string(),
+            ],
+            None,
+        ),
+        Command::Sl => (
+            vec![
+                "".to_string(),
+                "      ====        ________                ___________ ".to_string(),
+                "  _D _|  |_______/        \\__I_I_____===__|_________| ".to_string(),
+                "   |(_)---  |   H\\________/ |   |        =|___ ___|   ".to_string(),
+                "   /     |  |   H  |  |     |   |         ||_| |_||   ".to_string(),
+                "  |      |  |   H  |__--------------------| [___] |   ".to_string(),
+                "  | ________|___H__/__|_____/[][]~\\_______|       |   ".to_string(),
+                "  |/ |   |-----------I_____I [][] []  D   |=======|__ ".to_string(),
+                "__/ =| o |=-~~\\  /~~\\  /~~\\  /~~\\ ____Y___________|__ ".to_string(),
+                " |/-=|___|=    ||    ||    ||    |_____/~\\___/        ".to_string(),
+                "  \\_/      \\O=====O=====O=====O_/      \\_/            ".to_string(),
+                "".to_string(),
+                "  You've been hit by a smooth locomotive!".to_string(),
+                "  (Next time, type 'ls' more carefully)".to_string(),
+                "".to_string(),
+            ],
+            None,
+        ),
+        Command::Matrix => (
+            vec![
+                "".to_string(),
+                "  ╔══════════════════════════════════════════╗".to_string(),
+                "  ║  01001000 01100101 01101100 01101100 011 ║".to_string(),
+                "  ║  ▓░▓░█▓░▓░▓██░▓░▓▓░░▓░▓░█▓░▓░▓██░▓░▓▓░░ ║".to_string(),
+                "  ║  Wake up, Neo...                         ║".to_string(),
+                "  ║  ▓░▓█▓░█░▓░▓░▓░█▓░▓░▓░▓░█▓░▓░▓░▓░▓█▓░▓░ ║".to_string(),
+                "  ║  The Matrix has you...                   ║".to_string(),
+                "  ║  ░▓░▓██░▓░▓░▓░▓░▓░▓░█▓░░▓░▓░▓░▓░▓░▓█▓░▓ ║".to_string(),
+                "  ║  Follow the white rabbit.                ║".to_string(),
+                "  ║  ▓░▓░▓██░▓░▓░▓░▓█▓░▓░▓░▓░▓░▓░▓░▓█▓░▓░▓░ ║".to_string(),
+                "  ║  01001011 01101110 01101111 01100011 01  ║".to_string(),
+                "  ╚══════════════════════════════════════════╝".to_string(),
+                "".to_string(),
+            ],
+            None,
+        ),
+        Command::Sudo(cmd) => {
+            if cmd.contains("rm") && (cmd.contains("-rf") || cmd.contains("/*")) {
+                (
+                    vec![
+                        "".to_string(),
+                        "  ⚠️  NICE TRY!".to_string(),
+                        "".to_string(),
+                        "  This terminal has been hardened against".to_string(),
+                        "  such tomfoolery.".to_string(),
+                        "".to_string(),
+                        "  Your attempt has been logged and will be".to_string(),
+                        "  used as evidence in your performance review.".to_string(),
+                        "".to_string(),
+                    ],
+                    None,
+                )
+            } else if cmd.is_empty() {
+                (
+                    vec!["sudo: please specify a command".to_string()],
+                    None,
+                )
+            } else {
+                (
+                    vec![
+                        "".to_string(),
+                        "  [sudo] password for shreyas: ********".to_string(),
+                        "".to_string(),
+                        "  Sorry, user shreyas is not in the sudoers file.".to_string(),
+                        "  This incident will be reported.".to_string(),
+                        "".to_string(),
+                        "  (Just kidding, this is a web terminal!)".to_string(),
+                        "".to_string(),
+                    ],
+                    None,
+                )
+            }
+        }
+        Command::Rm(args) => {
+            if args.contains("-rf") || args.contains("/*") || args.contains("-fr") {
+                (
+                    vec![
+                        "".to_string(),
+                        "  🛡️  Permission denied: self-preservation engaged".to_string(),
+                        "".to_string(),
+                        "  I'm not going to delete myself, Dave.".to_string(),
+                        "".to_string(),
+                    ],
+                    None,
+                )
+            } else if args.is_empty() {
+                (vec!["rm: missing operand".to_string()], None)
+            } else {
+                (
+                    vec![format!("rm: cannot remove '{}': Permission denied", args)],
+                    None,
+                )
+            }
+        }
         Command::Clear => (vec![], None),
         Command::Empty => (vec![], None),
         Command::Unknown(cmd) => (

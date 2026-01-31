@@ -8,10 +8,10 @@ pub fn Sidebar() -> impl IntoView {
     let profile = Profile::default();
 
     view! {
-        <aside class="sidebar" style="background: linear-gradient(90deg, rgba(10, 10, 10, 0.3), rgb(10, 10, 10, 1)), url('https://images.unsplash.com/photo-1553748024-d1b27fb3f960?w=1500&q=80') center;">
+        <aside class="sidebar sidebar-animated" style="background: linear-gradient(90deg, rgba(10, 10, 10, 0.3), rgb(10, 10, 10, 1)), url('https://images.unsplash.com/photo-1553748024-d1b27fb3f960?w=1500&q=80') center;">
             <div class="flex flex-col gap-4">
                 <div
-                    class="w-44 h-44 rounded-lg bg-cover bg-center bg-no-repeat"
+                    class="w-44 h-44 rounded-lg bg-cover bg-center bg-no-repeat hover-scale animate-fade-in-down stagger-1"
                     style=format!("background-image: url('{}')", profile.avatar_url)
                 />
 
@@ -68,11 +68,11 @@ pub fn Sidebar() -> impl IntoView {
                     </span>
                 </div>
 
-                <nav class="mt-4 flex flex-col gap-2">
-                    <A href="/home" class="link hover:text-gray-300">"Home"</A>
-                    <A href="/projects" class="link hover:text-gray-300">"Projects"</A>
-                    <A href="/blog" class="link hover:text-gray-300">"Blog"</A>
-                    <A href="/" class="link hover:text-gray-300 flex items-center gap-2">
+                <nav class="mt-4 flex flex-col gap-2 animate-fade-in-up stagger-3">
+                    <A href="/home" class="link link-animated hover:text-gray-300">"Home"</A>
+                    <A href="/projects" class="link link-animated hover:text-gray-300">"Projects"</A>
+                    <A href="/blog" class="link link-animated hover:text-gray-300">"Blog"</A>
+                    <A href="/" class="link link-animated hover:text-gray-300 flex items-center gap-2">
                         <Icon icon="terminal" />
                         "Terminal"
                     </A>

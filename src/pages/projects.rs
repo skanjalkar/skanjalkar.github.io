@@ -11,7 +11,7 @@ pub fn ProjectsPage() -> impl IntoView {
 
     view! {
         <div>
-            <h1 class="section-title">"Projects"</h1>
+            <h1 class="section-title section-title-animated animate-fade-in-down">"Projects"</h1>
 
             <Suspense fallback=move || view! { <Loading /> }>
                 {move || projects.get().map(|repos| {
@@ -22,8 +22,8 @@ pub fn ProjectsPage() -> impl IntoView {
                     } else {
                         view! {
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {repos.into_iter().map(|project| {
-                                    view! { <ProjectCard project=project /> }
+                                {repos.into_iter().enumerate().map(|(index, project)| {
+                                    view! { <ProjectCard project=project index=index /> }
                                 }).collect_view()}
                             </div>
                         }.into_view()

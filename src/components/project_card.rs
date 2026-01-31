@@ -3,12 +3,13 @@ use crate::models::Project;
 use leptos::*;
 
 #[component]
-pub fn ProjectCard(project: Project) -> impl IntoView {
+pub fn ProjectCard(project: Project, #[prop(default = 0)] index: usize) -> impl IntoView {
+    let stagger_class = format!("stagger-{}", (index % 8) + 1);
     view! {
         <a
             href={project.html_url.clone()}
             target="_blank"
-            class="project-card"
+            class=format!("project-card hover-lift hover-glow card-animated {}", stagger_class)
         >
             <div class="title">{project.name.clone()}</div>
             <div class="description">{project.display_description()}</div>

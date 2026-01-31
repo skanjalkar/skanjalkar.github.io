@@ -3,12 +3,13 @@ use leptos::*;
 use leptos_router::*;
 
 #[component]
-pub fn BlogCard(post: BlogPost) -> impl IntoView {
+pub fn BlogCard(post: BlogPost, #[prop(default = 0)] index: usize) -> impl IntoView {
     let blog_url = format!("/blog/{}", post.id);
+    let stagger_class = format!("stagger-{}", (index % 8) + 1);
 
     view! {
-        <A href={blog_url} class="blog-card">
-            <img src={post.top_image.clone()} alt={post.title.clone()} />
+        <A href={blog_url} class=format!("blog-card hover-lift hover-glow card-animated {}", stagger_class)>
+            <img src={post.top_image.clone()} alt={post.title.clone()} class="transition-transform duration-300 hover:scale-105" />
             <div class="content">
                 <div class="title">{post.title}</div>
                 <div class="description">{post.summary}</div>

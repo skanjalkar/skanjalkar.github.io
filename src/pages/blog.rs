@@ -8,7 +8,7 @@ pub fn BlogPage() -> impl IntoView {
 
     view! {
         <div>
-            <h1 class="section-title">"Blog"</h1>
+            <h1 class="section-title section-title-animated animate-fade-in-down">"Blog"</h1>
 
             <Suspense fallback=move || view! { <Loading /> }>
                 {move || {
@@ -21,7 +21,8 @@ pub fn BlogPage() -> impl IntoView {
                             view! {
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {posts.into_iter()
-                                        .map(|post| view! { <BlogCard post=post /> })
+                                        .enumerate()
+                                        .map(|(index, post)| view! { <BlogCard post=post index=index /> })
                                         .collect_view()}
                                 </div>
                             }.into_view()
