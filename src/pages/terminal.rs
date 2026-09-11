@@ -1,698 +1,357 @@
+use crate::content::{posts, INTERESTS, INTRO, JOURNEY, PROJECTS};
+use crate::models::Profile;
+use crate::state::AppState;
 use leptos::html::{Div, Input};
 use leptos::*;
+use leptos_router::*;
 
-// Virtual file system for cat command
-fn get_virtual_file(name: &str) -> Option<Vec<String>> {
-    match name.to_lowercase().as_str() {
-        "about.txt" | "about" => Some(vec![
-            "=== About Shreyas Kanjalkar ===".to_string(),
-            "".to_string(),
-            "Software Engineer passionate about distributed systems".to_string(),
-            "and cloud computing.".to_string(),
-            "".to_string(),
-            "Education:".to_string(),
-            "  - MS Computer Science @ Georgia Tech".to_string(),
-            "  - MS Robotics @ WPI".to_string(),
-            "  - BE Mechanical Engineering @ Manipal".to_string(),
-            "".to_string(),
-            "Type 'cd home' to learn more!".to_string(),
-        ]),
-        "skills.txt" | "skills" => Some(vec![
-            "=== Technical Skills ===".to_string(),
-            "".to_string(),
-            "Languages:    Rust, Go, Python, TypeScript, Java".to_string(),
-            "Cloud:        AWS, GCP, Kubernetes, Docker".to_string(),
-            "Systems:      Distributed Systems, Microservices".to_string(),
-            "Frameworks:   Leptos, React, Actix, gRPC".to_string(),
-            "Databases:    PostgreSQL, Redis, DynamoDB".to_string(),
-            "Tools:        Git, Linux, Terraform, CI/CD".to_string(),
-        ]),
-        "interests.txt" | "interests" => Some(vec![
-            "=== Interests & Hobbies ===".to_string(),
-            "".to_string(),
-            "Chess       - Always up for a game!".to_string(),
-            "Formula 1   - McLaren fan".to_string(),
-            "Dota 2      - Casual player".to_string(),
-            "osu!        - Click the circles".to_string(),
-        ]),
-        "contact.txt" | "contact" => Some(vec![
-            "=== Contact Information ===".to_string(),
-            "".to_string(),
-            "Email:    skanjalkar [at] gmail.com".to_string(),
-            "GitHub:   github.com/skanjalkar".to_string(),
-            "LinkedIn: linkedin.com/in/skanjalkar".to_string(),
-            "".to_string(),
-            "Type 'social' for clickable links!".to_string(),
-        ]),
-        _ => None,
-    }
+#[derive(Clone)]
+enum Output {
+    Text(String),
+    Link(String, String),
+    Image(String, String),
 }
 
-fn get_available_files() -> Vec<&'static str> {
-    vec!["about.txt", "skills.txt", "interests.txt", "contact.txt"]
+#[derive(Clone)]
+struct Entry {
+    command: String,
+    output: Vec<Output>,
 }
 
-#[derive(Clone, Debug, PartialEq)]
-enum LineType {
-    Command,
-    Output,
+#[derive(Clone, Default)]
+pub struct TerminalSession {
+    entries: Vec<Entry>,
+    commands: Vec<String>,
+    input: String,
+    history_index: Option<usize>,
+    draft: String,
 }
 
-#[derive(Clone, Debug)]
-struct TerminalLine {
-    content: String,
-    line_type: LineType,
+fn text(value: impl Into<String>) -> Output {
+    Output::Text(value.into())
 }
 
-#[derive(Clone, Debug, PartialEq)]
-enum CdDestination {
-    Projects,
-    Blog,
-    Home,
+fn link(label: impl Into<String>, url: impl Into<String>) -> Output {
+    Output::Link(label.into(), url.into())
 }
 
-impl CdDestination {
-    const DIRECTORIES: [&'static str; 3] = ["blog", "home", "projects"];
-
-    fn parse(s: &str) -> Option<Self> {
-        match s.to_lowercase().as_str() {
-            "projects" => Some(Self::Projects),
-            "blog" => Some(Self::Blog),
-            "home" | "/" | "~" => Some(Self::Home),
-            _ => None,
+fn command_output(input: &str) -> Vec<Output> {
+    let input = input.trim();
+    let (command, arg) = input.split_once(char::is_whitespace).unwrap_or((input, ""));
+    let arg = arg.trim();
+    let profile = Profile::default();
+    match command.to_lowercase().as_str() {
+        "help" => vec![text("Explore\n  about / whoami      Meet Shreyas\n  projects            Browse the workbench\n  open <project>      Read a project (try: open aries)\n  blog                List writing\n  read <post>         Read a post (try: read about-me)\n  contact / social    Find me elsewhere\n  resume              Open my résumé\n  interests / spiky   Off the clock\n\nNavigate\n  ls / tree           What’s here\n  cd <section>        Read home, projects, blog, or about here\n  cat <file>          Read about.txt, skills.txt, interests.txt, contact.txt\n  browse / exit       Return to your last visual page\n\nUtilities\n  clear / history     Clear output / show command history\n  echo <text> / date  Small familiar comforts\n  neofetch            About this workshop\n\nJust for fun\n  coffee / fortune / cowsay <text> / sl / matrix\n\nUse ↑ and ↓ for history. Tab completes a command; Escape then Tab leaves the input.\nYour session stays here while you switch between Browse and Terminal.")],
+        "about" | "whoami" | "home" => {
+            let mut output = vec![text(INTRO), text("THE PATH HERE")];
+            output.extend(JOURNEY.iter().map(|(field, place)| text(format!("{field} → {place}"))));
+            output.push(text(INTERESTS));
+            output
         }
-    }
-
-    fn path(&self) -> &'static str {
-        match self {
-            Self::Projects => "/projects",
-            Self::Blog => "/blog",
-            Self::Home => "/home",
-        }
-    }
-
-    fn complete(partial: &str) -> Option<&'static str> {
-        let partial_lower = partial.to_lowercase();
-        Self::DIRECTORIES
-            .iter()
-            .find(|dir| dir.starts_with(&partial_lower))
-            .copied()
-    }
-}
-
-#[derive(Clone, Debug, PartialEq)]
-enum Command {
-    Cd(Option<String>),
-    Ls,
-    Pwd,
-    Help,
-    Clear,
-    Cat(Option<String>),
-    Whoami,
-    Tree,
-    Neofetch,
-    Social,
-    Echo(String),
-    Date,
-    Fortune,
-    Cowsay(String),
-    Coffee,
-    Sl,
-    Matrix,
-    Sudo(String),
-    Rm(String),
-    Empty,
-    Unknown(String),
-}
-
-impl Command {
-    fn parse(input: &str) -> Self {
-        let parts: Vec<&str> = input.split_whitespace().collect();
-        let cmd = parts.first().copied().unwrap_or("");
-        let arg = parts.get(1).map(|s| s.to_string());
-        // For echo, capture everything after "echo "
-        let echo_content = input.strip_prefix("echo ").map(|s| s.to_string());
-
-        // For cowsay, capture everything after "cowsay "
-        let cowsay_content = input.strip_prefix("cowsay ").map(|s| s.to_string());
-        // For sudo, capture everything after "sudo "
-        let sudo_content = input.strip_prefix("sudo ").map(|s| s.to_string());
-        // For rm, capture everything after "rm "
-        let rm_content = input.strip_prefix("rm ").map(|s| s.to_string());
-
-        match cmd.to_lowercase().as_str() {
-            "cd" => Self::Cd(arg),
-            "ls" => Self::Ls,
-            "pwd" => Self::Pwd,
-            "help" => Self::Help,
-            "clear" => Self::Clear,
-            "cat" => Self::Cat(arg),
-            "whoami" => Self::Whoami,
-            "tree" => Self::Tree,
-            "neofetch" | "fetch" => Self::Neofetch,
-            "social" | "socials" => Self::Social,
-            "echo" => Self::Echo(echo_content.unwrap_or_default()),
-            "date" => Self::Date,
-            "fortune" => Self::Fortune,
-            "cowsay" => Self::Cowsay(cowsay_content.unwrap_or_else(|| "moo".to_string())),
-            "coffee" => Self::Coffee,
-            "sl" => Self::Sl,
-            "matrix" | "cmatrix" => Self::Matrix,
-            "sudo" => Self::Sudo(sudo_content.unwrap_or_default()),
-            "rm" => Self::Rm(rm_content.unwrap_or_default()),
-            "" => Self::Empty,
-            other => Self::Unknown(other.to_string()),
-        }
-    }
-}
-
-fn execute_command(cmd: &Command) -> (Vec<String>, Option<CdDestination>) {
-    match cmd {
-        Command::Cd(None) => (
-            vec![
-                "Usage: cd <directory>".to_string(),
-                "Available: blog, projects, home".to_string(),
-            ],
-            None,
-        ),
-        Command::Cd(Some(dest)) => {
-            if let Some(cd_dest) = CdDestination::parse(dest) {
-                (
-                    vec![format!("Navigating to {}...", cd_dest.path())],
-                    Some(cd_dest),
-                )
-            } else {
-                (vec![format!("cd: {}: No such directory", dest)], None)
+        "projects" => {
+            let mut output = vec![text("THE WORKBENCH")];
+            for project in PROJECTS {
+                output.push(text(format!("{} — {}\n{}", project.slug, project.name, project.summary)));
+                output.push(link(format!("open {} →", project.slug), format!("/terminal?command=open%20{}", project.slug)));
             }
+            output.push(link("All repositories ↗", "https://github.com/skanjalkar?tab=repositories"));
+            output
         }
-        Command::Ls => (
-            vec![
-                "drwxr-xr-x  blog/".to_string(),
-                "drwxr-xr-x  projects/".to_string(),
-                "drwxr-xr-x  home/".to_string(),
-                "-rw-r--r--  about.txt".to_string(),
-                "-rw-r--r--  skills.txt".to_string(),
-                "-rw-r--r--  interests.txt".to_string(),
-                "-rw-r--r--  contact.txt".to_string(),
-            ],
-            None,
-        ),
-        Command::Pwd => (vec!["/home/shreyas".to_string()], None),
-        Command::Cat(None) => (
-            vec![
-                "Usage: cat <file>".to_string(),
-                format!("Available files: {}", get_available_files().join(", ")),
-            ],
-            None,
-        ),
-        Command::Cat(Some(filename)) => {
-            if let Some(content) = get_virtual_file(filename) {
-                (content, None)
-            } else {
-                (vec![format!("cat: {}: No such file", filename)], None)
-            }
+        "open" => PROJECTS.iter().find(|p| p.slug == arg || p.repository == arg).map(|p| vec![
+            text(format!("{}\n{} · {}", p.name, p.category, p.language)),
+            text(p.summary), text(p.detail), link("Explore the code ↗", p.url()),
+            link("View visual page →", format!("/projects/{}", p.slug)),
+        ]).unwrap_or_else(|| vec![text("Project not found. Type projects to see the available names.")]),
+        "blog" | "writing" => posts().into_iter().flat_map(|post| vec![
+            text(format!("{} — {} ({})\n{}", post.id, post.title, post.date, post.summary)),
+            link(format!("read {} →", post.id), format!("/terminal?command=read%20{}", post.id)),
+        ]).collect(),
+        "read" => posts().into_iter().find(|p| p.id == arg).map(|post| {
+            let mut output = vec![text(format!("{} · {}\nAn entry from the archive; details reflect the time it was written.", post.title, post.date))];
+            output.extend(post.content.into_iter().filter_map(|item| match item.content_type.as_str() {
+                "paragraph" => item.text.map(text),
+                "image" => item.src.map(|src| Output::Image(src, item.alt.unwrap_or_default())),
+                _ => None,
+            }));
+            output.push(link("View visual page →", format!("/blog/{}", post.id)));
+            output
+        }).unwrap_or_else(|| vec![text("Post not found. Type blog to see the available posts.")]),
+        "contact" | "social" | "socials" => vec![
+            link("Email ↗", format!("mailto:{}", profile.email)),
+            link("GitHub ↗", profile.github_url),
+            link("LinkedIn ↗", profile.linkedin_url.unwrap_or_default()),
+        ],
+        "resume" => vec![link("Read my résumé (PDF) ↗", profile.resume_url.unwrap_or_default())],
+        "interests" => vec![text(INTERESTS)],
+        "spiky" => vec![text("Meet Spiky. An important part of the story."), Output::Image("/static/blog/about-me/img_0.jpeg".into(), "Spiky, Shreyas’s dog".into())],
+        "skills" => vec![text("My work explores distributed systems, database storage, and robotics.\nThe workbench includes Rust, Go, and Python projects. Type projects to explore.")],
+        "ls" | "tree" => vec![text("~/workshop\n├── about.txt\n├── skills.txt\n├── interests.txt\n├── contact.txt\n├── projects/\n│   ├── aries\n│   ├── distributed-systems\n│   ├── watchman\n│   └── workshop\n└── blog/\n    └── about-me\n\nTry: open aries, read about-me, or cat about.txt")],
+        "pwd" => vec![text("/home/shreyas/workshop")],
+        "cat" => match arg.trim_end_matches(".txt") {
+            name @ ("about" | "skills" | "interests" | "contact") => command_output(name),
+            _ => vec![text("File not found. Try about.txt, skills.txt, interests.txt, or contact.txt.")],
+        },
+        "cd" => match arg.trim_matches('/') {
+            "" | "~" | "home" | "about" => command_output("about"),
+            "projects" => command_output("projects"),
+            "blog" => command_output("blog"),
+            _ => vec![text("Section not found. Try cd projects, cd blog, or cd home.")],
+        },
+        "neofetch" | "fetch" => vec![text(format!("sk.  Shreyas’s workshop\n──────────────────────\nHost     GitHub Pages\nBuilt    Rust + Leptos + WebAssembly\nHome     {}\nModes    Browse / Terminal\n\n{}", profile.location, INTRO))],
+        "echo" => vec![text(arg)],
+        "date" => vec![text(js_sys::Date::new_0().to_utc_string().as_string().unwrap_or_default())],
+        "coffee" => vec![text("   ( (\n    ) )\n  .-----._\n  |     | )\n  |     |/\n  '-----'\n\nA little coffee for your curiosity.")],
+        "cowsay" => {
+            let message = if arg.is_empty() { "hello, world" } else { arg };
+            vec![text(format!("< {message} >\n        \\   ^__^\n         \\  (oo)\\_______\n            (__)\\       )\\/\\\n                ||----w |\n                ||     ||"))]
         }
-        Command::Whoami => (
-            vec![
-                "shreyas".to_string(),
-                "".to_string(),
-                "Shreyas Kanjalkar".to_string(),
-                "Software Engineer | Distributed Systems Enthusiast".to_string(),
-                "Currently pursuing MS CS @ Georgia Tech".to_string(),
-            ],
-            None,
-        ),
-        Command::Tree => (
-            vec![
-                ".".to_string(),
-                "|-- blog/".to_string(),
-                "|   |-- about-me".to_string(),
-                "|   `-- ... (more posts)".to_string(),
-                "|-- projects/".to_string(),
-                "|   `-- (GitHub repositories)".to_string(),
-                "|-- home/".to_string(),
-                "|   `-- (About page)".to_string(),
-                "|-- about.txt".to_string(),
-                "|-- skills.txt".to_string(),
-                "|-- interests.txt".to_string(),
-                "`-- contact.txt".to_string(),
-                "".to_string(),
-                "3 directories, 4 files".to_string(),
-            ],
-            None,
-        ),
-        Command::Neofetch => {
-            let lines: Vec<String> = vec![
-                "".to_string(),
-                "   _____ _  __      shreyas@portfolio".to_string(),
-                "  / ____| |/ /      -----------------".to_string(),
-                " | (___ | ' /       OS: WebAssembly/Leptos".to_string(),
-                "  \\___ \\|  <        Host: GitHub Pages".to_string(),
-                "  ____) | . \\       Shell: shreyas-term 1.0".to_string(),
-                " |_____/|_|\\_\\      Theme: Dark Mode".to_string(),
-                "                    Languages: Rust, Go, Python".to_string(),
-                "                    Uptime: since 2024".to_string(),
-                "                    ".to_string(),
-                "                    Contact: skanjalkar@gmail.com".to_string(),
-                "".to_string(),
-            ];
-            (lines, None)
-        }
-        Command::Social => (
-            vec![
-                "=== Social Links ===".to_string(),
-                "".to_string(),
-                "GitHub:   https://github.com/skanjalkar".to_string(),
-                "LinkedIn: https://linkedin.com/in/skanjalkar".to_string(),
-                "Email:    skanjalkar@gmail.com".to_string(),
-                "".to_string(),
-                "Tip: Use 'cd projects' to see my GitHub repos!".to_string(),
-            ],
-            None,
-        ),
-        Command::Echo(text) => {
-            if text.is_empty() {
-                (vec!["".to_string()], None)
-            } else {
-                (vec![text.clone()], None)
-            }
-        }
-        Command::Date => {
-            // Get current date - in WASM we'll use a simple format
-            let now = chrono::Local::now();
-            (vec![now.format("%a %b %d %H:%M:%S %Y").to_string()], None)
-        }
-        Command::Help => (
-            vec![
-                "Available commands:".to_string(),
-                "".to_string(),
-                "  Navigation:".to_string(),
-                "    cd <dir>    Navigate to directory (blog, projects, home)".to_string(),
-                "    ls          List files and directories".to_string(),
-                "    pwd         Print working directory".to_string(),
-                "    tree        Show directory structure".to_string(),
-                "".to_string(),
-                "  Information:".to_string(),
-                "    cat <file>  Display file contents (try: about.txt, skills.txt)".to_string(),
-                "    whoami      Display user information".to_string(),
-                "    neofetch    Display system info with ASCII art".to_string(),
-                "    social      Show social media links".to_string(),
-                "".to_string(),
-                "  Utilities:".to_string(),
-                "    echo <text> Print text to terminal".to_string(),
-                "    date        Show current date and time".to_string(),
-                "    clear       Clear terminal screen".to_string(),
-                "    help        Show this message".to_string(),
-                "".to_string(),
-                "  Fun stuff:".to_string(),
-                "    fortune     Get a random programming wisdom".to_string(),
-                "    cowsay <msg> Make a cow say something".to_string(),
-                "    coffee      Brew some ASCII coffee".to_string(),
-                "    sl          Choo choo!".to_string(),
-                "    matrix      Enter the matrix".to_string(),
-                "".to_string(),
-                "  Tips:".to_string(),
-                "    - Use Tab to autocomplete 'cd' commands".to_string(),
-                "    - Use Up/Down arrows for command history".to_string(),
-            ],
-            None,
-        ),
-        Command::Fortune => {
-            let fortunes = [
-                "There are only two hard things in Computer Science: cache invalidation and naming things.",
-                "It works on my machine.",
-                "99 little bugs in the code, 99 little bugs. Take one down, patch it around... 127 little bugs in the code.",
-                "A SQL query walks into a bar, walks up to two tables and asks... 'Can I join you?'",
-                "To understand recursion, you must first understand recursion.",
-                "The best thing about a boolean is even if you are wrong, you are only off by a bit.",
-                "Programming is like writing a book... except if you miss a single comma on page 126, the whole thing makes no sense.",
-                "In order to understand recursion, one must first understand recursion.",
-                "Why do programmers prefer dark mode? Because light attracts bugs.",
-                "A programmer is a machine that turns coffee into code.",
-                "Real programmers count from 0.",
-                "There's no place like 127.0.0.1",
-                "SELECT * FROM users WHERE clue > 0;  -- 0 rows returned",
-                "The code works, don't touch it.",
-                "// TODO: fix this later (written 3 years ago)",
-                "git commit -m 'fixed bug' (narrator: it did not fix the bug)",
-            ];
-            // Simple pseudo-random based on current time
-            let now = chrono::Local::now();
-            let idx = (now.timestamp_millis() as usize) % fortunes.len();
-            (
-                vec![
-                    "".to_string(),
-                    format!("  \"{}\"", fortunes[idx]),
-                    "".to_string(),
-                ],
-                None,
-            )
-        }
-        Command::Cowsay(message) => {
-            let msg = if message.is_empty() { "moo" } else { &message };
-            let border_len = msg.len() + 2;
-            let border: String = "-".repeat(border_len);
-            (
-                vec![
-                    format!(" {}", border),
-                    format!("< {} >", msg),
-                    format!(" {}", border),
-                    "        \\   ^__^".to_string(),
-                    "         \\  (oo)\\_______".to_string(),
-                    "            (__)\\       )\\/\\".to_string(),
-                    "                ||----w |".to_string(),
-                    "                ||     ||".to_string(),
-                ],
-                None,
-            )
-        }
-        Command::Coffee => (
-            vec![
-                "".to_string(),
-                "        ( (     ".to_string(),
-                "         ) )    ".to_string(),
-                "      ........  ".to_string(),
-                "      |      |] ".to_string(),
-                "      \\      /  ".to_string(),
-                "       `----'   ".to_string(),
-                "".to_string(),
-                "  Brewing fresh coffee...".to_string(),
-                "  [##########] 100%".to_string(),
-                "".to_string(),
-                "  Here's your coffee! Now go write some code.".to_string(),
-                "".to_string(),
-            ],
-            None,
-        ),
-        Command::Sl => (
-            vec![
-                "".to_string(),
-                "      ====        ________                ___________ ".to_string(),
-                "  _D _|  |_______/        \\__I_I_____===__|_________| ".to_string(),
-                "   |(_)---  |   H\\________/ |   |        =|___ ___|   ".to_string(),
-                "   /     |  |   H  |  |     |   |         ||_| |_||   ".to_string(),
-                "  |      |  |   H  |__--------------------| [___] |   ".to_string(),
-                "  | ________|___H__/__|_____/[][]~\\_______|       |   ".to_string(),
-                "  |/ |   |-----------I_____I [][] []  D   |=======|__ ".to_string(),
-                "__/ =| o |=-~~\\  /~~\\  /~~\\  /~~\\ ____Y___________|__ ".to_string(),
-                " |/-=|___|=    ||    ||    ||    |_____/~\\___/        ".to_string(),
-                "  \\_/      \\O=====O=====O=====O_/      \\_/            ".to_string(),
-                "".to_string(),
-                "  You've been hit by a smooth locomotive!".to_string(),
-                "  (Next time, type 'ls' more carefully)".to_string(),
-                "".to_string(),
-            ],
-            None,
-        ),
-        Command::Matrix => (
-            vec![
-                "".to_string(),
-                "  ╔══════════════════════════════════════════╗".to_string(),
-                "  ║  01001000 01100101 01101100 01101100 011 ║".to_string(),
-                "  ║  ▓░▓░█▓░▓░▓██░▓░▓▓░░▓░▓░█▓░▓░▓██░▓░▓▓░░ ║".to_string(),
-                "  ║  Wake up, Neo...                         ║".to_string(),
-                "  ║  ▓░▓█▓░█░▓░▓░▓░█▓░▓░▓░▓░█▓░▓░▓░▓░▓█▓░▓░ ║".to_string(),
-                "  ║  The Matrix has you...                   ║".to_string(),
-                "  ║  ░▓░▓██░▓░▓░▓░▓░▓░▓░█▓░░▓░▓░▓░▓░▓░▓█▓░▓ ║".to_string(),
-                "  ║  Follow the white rabbit.                ║".to_string(),
-                "  ║  ▓░▓░▓██░▓░▓░▓░▓█▓░▓░▓░▓░▓░▓░▓░▓█▓░▓░▓░ ║".to_string(),
-                "  ║  01001011 01101110 01101111 01100011 01  ║".to_string(),
-                "  ╚══════════════════════════════════════════╝".to_string(),
-                "".to_string(),
-            ],
-            None,
-        ),
-        Command::Sudo(cmd) => {
-            if cmd.contains("rm") && (cmd.contains("-rf") || cmd.contains("/*")) {
-                (
-                    vec![
-                        "".to_string(),
-                        "  ⚠️  NICE TRY!".to_string(),
-                        "".to_string(),
-                        "  This terminal has been hardened against".to_string(),
-                        "  such tomfoolery.".to_string(),
-                        "".to_string(),
-                        "  Your attempt has been logged and will be".to_string(),
-                        "  used as evidence in your performance review.".to_string(),
-                        "".to_string(),
-                    ],
-                    None,
-                )
-            } else if cmd.is_empty() {
-                (
-                    vec!["sudo: please specify a command".to_string()],
-                    None,
-                )
-            } else {
-                (
-                    vec![
-                        "".to_string(),
-                        "  [sudo] password for shreyas: ********".to_string(),
-                        "".to_string(),
-                        "  Sorry, user shreyas is not in the sudoers file.".to_string(),
-                        "  This incident will be reported.".to_string(),
-                        "".to_string(),
-                        "  (Just kidding, this is a web terminal!)".to_string(),
-                        "".to_string(),
-                    ],
-                    None,
-                )
-            }
-        }
-        Command::Rm(args) => {
-            if args.contains("-rf") || args.contains("/*") || args.contains("-fr") {
-                (
-                    vec![
-                        "".to_string(),
-                        "  🛡️  Permission denied: self-preservation engaged".to_string(),
-                        "".to_string(),
-                        "  I'm not going to delete myself, Dave.".to_string(),
-                        "".to_string(),
-                    ],
-                    None,
-                )
-            } else if args.is_empty() {
-                (vec!["rm: missing operand".to_string()], None)
-            } else {
-                (
-                    vec![format!("rm: cannot remove '{}': Permission denied", args)],
-                    None,
-                )
-            }
-        }
-        Command::Clear => (vec![], None),
-        Command::Empty => (vec![], None),
-        Command::Unknown(cmd) => (
-            vec![format!(
-                "{}: command not found. Type 'help' for available commands.",
-                cmd
-            )],
-            None,
-        ),
+        "fortune" => vec![text("There are only two hard things in Computer Science: cache invalidation and naming things.")],
+        "sl" => vec![text("     ___      ______\n  __|   |____|_[]_[]|\n |__        _______|\n    O------O   O--O\n\nThe train has arrived. Were you looking for ls?")],
+        "matrix" | "cmatrix" => vec![text("01001000 01100101 01101100 01101100 01101111\n\nFollow your curiosity. The rabbit can wait.")],
+        "sudo" | "rm" => vec![text("This is a portfolio terminal. No system commands are run and no files are changed.\nTry help to see what you can explore.")],
+        "" => Vec::new(),
+        _ => vec![text(format!("Command not found: {command}. Try help, or use one of the buttons above."))],
     }
+}
+
+fn completions(input: &str) -> Vec<String> {
+    let commands = [
+        "about",
+        "projects",
+        "open",
+        "blog",
+        "read",
+        "contact",
+        "resume",
+        "interests",
+        "spiky",
+        "help",
+        "ls",
+        "tree",
+        "pwd",
+        "cd",
+        "cat",
+        "whoami",
+        "skills",
+        "social",
+        "clear",
+        "history",
+        "browse",
+        "exit",
+        "echo",
+        "date",
+        "neofetch",
+        "coffee",
+        "fortune",
+        "cowsay",
+        "sl",
+        "matrix",
+        "sudo",
+        "rm",
+    ];
+    let (prefix, partial, values): (String, &str, Vec<String>) =
+        if let Some((cmd, arg)) = input.split_once(' ') {
+            let values = match cmd {
+                "open" => PROJECTS.iter().map(|p| p.slug.to_string()).collect(),
+                "read" => posts().into_iter().map(|p| p.id).collect(),
+                "cd" => ["home", "about", "projects", "blog"]
+                    .map(str::to_string)
+                    .to_vec(),
+                "cat" => ["about.txt", "skills.txt", "interests.txt", "contact.txt"]
+                    .map(str::to_string)
+                    .to_vec(),
+                _ => Vec::new(),
+            };
+            (format!("{cmd} "), arg, values)
+        } else {
+            (String::new(), input, commands.map(str::to_string).to_vec())
+        };
+    values
+        .into_iter()
+        .filter(|v| v.starts_with(partial))
+        .map(|v| format!("{prefix}{v}"))
+        .collect()
 }
 
 #[component]
 pub fn TerminalPage() -> impl IntoView {
-    let (history, set_history) = create_signal(Vec::<TerminalLine>::new());
-    let (current_input, set_current_input) = create_signal(String::new());
-    let (command_history, set_command_history) = create_signal(Vec::<String>::new());
-    let (history_index, set_history_index) = create_signal(-1i32);
+    let state = expect_context::<AppState>();
+    let session = state.terminal;
+    let navigate = use_navigate();
+    let query = use_query_map();
     let input_ref = create_node_ref::<Input>();
     let output_ref = create_node_ref::<Div>();
-
-    // Auto-focus input on mount
-    create_effect(move |_| {
-        if let Some(input) = input_ref.get() {
-            let _ = input.focus();
+    let release_tab = create_rw_signal(false);
+    let suggestions = create_rw_signal(Vec::<String>::new());
+    let run = store_value(move |command: String| {
+        let command = command.trim().to_string();
+        if command.is_empty() {
+            return;
         }
-    });
-
-    // Auto-scroll to bottom when history changes
-    create_effect(move |_| {
-        let _ = history.get();
-        if let Some(output) = output_ref.get() {
-            output.set_scroll_top(output.scroll_height());
-        }
-    });
-
-    // Welcome message
-    create_effect(move |_| {
-        set_history.set(vec![
-            TerminalLine {
-                content: "Welcome to shreyas@portfolio! Type 'help' for all commands.".to_string(),
-                line_type: LineType::Output,
-            },
-            TerminalLine {
-                content: "Try 'neofetch' for a quick intro or 'cat about.txt' to learn more."
-                    .to_string(),
-                line_type: LineType::Output,
-            },
-            TerminalLine {
-                content: "".to_string(),
-                line_type: LineType::Output,
-            },
-        ]);
-    });
-
-    let handle_submit = move |ev: ev::SubmitEvent| {
-        ev.prevent_default();
-        let cmd_str = current_input.get();
-        let command = Command::parse(&cmd_str);
-
-        if matches!(command, Command::Clear) {
-            set_history.set(vec![]);
-        } else {
-            let mut new_history = history.get();
-
-            new_history.push(TerminalLine {
-                content: format!("$ {}", cmd_str),
-                line_type: LineType::Command,
+        if command == "browse" || command == "exit" {
+            session.update(|s| {
+                s.input.clear();
+                s.history_index = None;
             });
-
-            let (output, nav_dest) = execute_command(&command);
-
-            for line in output {
-                new_history.push(TerminalLine {
-                    content: line,
-                    line_type: LineType::Output,
-                });
+            navigate(&state.browse_path.get_untracked(), Default::default());
+            return;
+        }
+        session.update(|s| {
+            let output = if command == "history" {
+                vec![text(
+                    s.commands
+                        .iter()
+                        .enumerate()
+                        .map(|(i, command)| format!("{}  {}", i + 1, command))
+                        .collect::<Vec<_>>()
+                        .join("\n"),
+                )]
+            } else if command == "clear" {
+                s.entries.clear();
+                Vec::new()
+            } else {
+                command_output(&command)
+            };
+            s.commands.push(command.clone());
+            if command != "clear" {
+                s.entries.push(Entry { command, output });
             }
+            s.input.clear();
+            s.draft.clear();
+            s.history_index = None;
+        });
+        suggestions.set(Vec::new());
+    });
 
-            new_history.push(TerminalLine {
-                content: "".to_string(),
-                line_type: LineType::Output,
-            });
+    let consume_command = use_navigate();
+    create_effect(move |_| {
+        if let Some(command) = query.with(|q| q.get("command").cloned()) {
+            run.with_value(|run| run(command));
+            consume_command(
+                "/terminal",
+                NavigateOptions {
+                    replace: true,
+                    scroll: false,
+                    ..Default::default()
+                },
+            );
+        }
+    });
 
-            set_history.set(new_history);
+    let entry_count = create_memo(move |_| session.with(|s| s.entries.len()));
+    create_effect(move |_| {
+        entry_count.get();
+        request_animation_frame(move || {
+            if let Some(output) = output_ref.get() {
+                if let Some(entry) = output.last_element_child() {
+                    let top = entry.get_bounding_client_rect().top()
+                        - output.get_bounding_client_rect().top()
+                        + f64::from(output.scroll_top());
+                    output.set_scroll_top(top as i32);
+                }
+            }
+        });
+    });
 
-            // Navigate after updating history
-            if let Some(dest) = nav_dest {
-                let path = dest.path().to_string();
-                set_timeout(
-                    move || {
-                        if let Some(window) = web_sys::window() {
-                            let _ = window.location().set_href(&path);
-                        }
-                    },
-                    std::time::Duration::from_millis(300),
-                );
+    let keydown = move |ev: ev::KeyboardEvent| match ev.key().as_str() {
+        "Escape" => {
+            release_tab.set(true);
+            suggestions.set(Vec::new());
+        }
+        "Tab" if !ev.shift_key() && !release_tab.get_untracked() => {
+            let matches = completions(&session.get_untracked().input);
+            if !matches.is_empty() {
+                ev.prevent_default();
+                if matches.len() == 1 {
+                    session.update(|s| s.input = matches[0].clone());
+                    suggestions.set(Vec::new());
+                } else {
+                    suggestions.set(matches);
+                }
             }
         }
-
-        if !cmd_str.is_empty() {
-            let mut cmds = command_history.get();
-            cmds.push(cmd_str.clone());
-            set_command_history.set(cmds);
-            set_history_index.set(-1);
-        }
-
-        set_current_input.set(String::new());
-    };
-
-    let handle_keydown = move |ev: ev::KeyboardEvent| match ev.key().as_str() {
-        "Tab" => {
+        "ArrowUp" | "ArrowDown" => {
             ev.prevent_default();
-            let input = current_input.get();
-
-            // Tab completion for cd command
-            if let Some(partial) = input.strip_prefix("cd ") {
-                if let Some(completed) = CdDestination::complete(partial) {
-                    set_current_input.set(format!("cd {}", completed));
+            session.update(|s| {
+                if s.commands.is_empty() {
                     return;
                 }
-            }
-
-            // Tab completion for cat command
-            if let Some(partial) = input.strip_prefix("cat ") {
-                let partial_lower = partial.to_lowercase();
-                let files = get_available_files();
-                if let Some(completed) = files.iter().find(|f| f.starts_with(&partial_lower)) {
-                    set_current_input.set(format!("cat {}", completed));
+                if ev.key() == "ArrowUp" {
+                    if s.history_index.is_none() {
+                        s.draft = s.input.clone();
+                    }
+                    let index = s
+                        .history_index
+                        .map(|i| i.saturating_sub(1))
+                        .unwrap_or(s.commands.len() - 1);
+                    s.history_index = Some(index);
+                    s.input = s.commands[index].clone();
+                } else if let Some(index) = s.history_index {
+                    if index + 1 < s.commands.len() {
+                        s.history_index = Some(index + 1);
+                        s.input = s.commands[index + 1].clone();
+                    } else {
+                        s.history_index = None;
+                        s.input = s.draft.clone();
+                    }
                 }
-            }
+            });
         }
-        "ArrowUp" => {
-            ev.prevent_default();
-            let cmds = command_history.get();
-            if cmds.is_empty() {
-                return;
-            }
-            let new_index = if history_index.get() < 0 {
-                cmds.len() as i32 - 1
-            } else {
-                (history_index.get() - 1).max(0)
-            };
-            set_history_index.set(new_index);
-            if let Some(cmd) = cmds.get(new_index as usize) {
-                set_current_input.set(cmd.clone());
-            }
-        }
-        "ArrowDown" => {
-            ev.prevent_default();
-            let cmds = command_history.get();
-            let new_index = history_index.get() + 1;
-            if new_index >= cmds.len() as i32 {
-                set_history_index.set(-1);
-                set_current_input.set(String::new());
-                return;
-            }
-            set_history_index.set(new_index);
-            if let Some(cmd) = cmds.get(new_index as usize) {
-                set_current_input.set(cmd.clone());
-            }
-        }
-        _ => {}
-    };
-
-    let focus_input = move |_| {
-        if let Some(input) = input_ref.get() {
-            let _ = input.focus();
-        }
+        _ => release_tab.set(false),
     };
 
     view! {
-        <div class="terminal-container" on:click=focus_input>
-            <div class="terminal-header">
-                <div class="terminal-buttons">
-                    <span class="terminal-button red"></span>
-                    <span class="terminal-button yellow"></span>
-                    <span class="terminal-button green"></span>
-                </div>
-                <span class="terminal-title">"shreyas@portfolio: ~"</span>
+        <section class="terminal-page" aria-labelledby="terminal-heading">
+            <div class="section-heading">
+                <div><p class="eyebrow">"SAME WORKSHOP. DIFFERENT ENTRANCE."</p><h1 id="terminal-heading">"Make yourself at "<em>"~/home."</em></h1></div>
+                <A href=move || state.browse_path.get() class="text-link">"← Back to browsing"</A>
             </div>
-            <div class="terminal-body">
-                <div class="terminal-output" node_ref=output_ref>
-                    <For
-                        each=move || history.get()
-                        key=|line| line.content.clone()
-                        children=move |line| {
-                            let class_name = match line.line_type {
-                                LineType::Command => "terminal-line command",
-                                LineType::Output => "terminal-line",
-                            };
-                            view! {
-                                <div class=class_name>
-                                    <pre>{line.content.clone()}</pre>
-                                </div>
-                            }
-                        }
-                    />
+            <div class="terminal-window">
+                <div class="terminal-bar"><span class="terminal-lights" aria-hidden="true">"● ● ●"</span><span>"shreyas / workshop"</span><span>"a place to explore"</span></div>
+                <div class="terminal-welcome"><strong>"Hello, curious human."</strong><p>"Read, explore, follow a rabbit hole. Type a command or choose one below."</p></div>
+                <div class="command-chips" aria-label="Suggested commands">
+                    {["about", "projects", "blog", "contact", "spiky", "help"].into_iter().map(|command| view! {
+                        <button type="button" on:click=move |_| run.with_value(|run| run(command.to_string()))>{command}</button>
+                    }).collect_view()}
                 </div>
-                <form class="terminal-input-line" on:submit=handle_submit>
-                    <span class="terminal-prompt">"$ "</span>
-                    <input
-                        type="text"
-                        class="terminal-input"
-                        node_ref=input_ref
-                        prop:value=move || current_input.get()
-                        on:input=move |ev| set_current_input.set(event_target_value(&ev))
-                        on:keydown=handle_keydown
-                        autocomplete="off"
-                        spellcheck="false"
-                    />
+                <div class="terminal-output" node_ref=output_ref role="log" aria-label="Terminal output" aria-live="polite" aria-relevant="additions" tabindex="0">
+                    <For each=move || session.with(|s| s.entries.clone().into_iter().enumerate().collect::<Vec<_>>()) key=|(index, _)| *index children=move |(_, entry)| view! {
+                        <div class="terminal-entry">
+                            <p class="terminal-command"><span aria-hidden="true">"❯ "</span>{entry.command}</p>
+                            {entry.output.into_iter().map(|output| match output {
+                                Output::Text(value) => view! { <p class="terminal-text">{value}</p> }.into_view(),
+                                Output::Link(label, url) => {
+                                    let relation = if url.ends_with(".pdf") { "external" } else { "" };
+                                    view! { <p class="terminal-link"><A href=url attr:rel=relation>{label}</A></p> }.into_view()
+                                },
+                                Output::Image(src, alt) => view! { <img class="terminal-image" src=src alt=alt loading="lazy"/> }.into_view(),
+                            }).collect_view()}
+                        </div>
+                    }/>
+                </div>
+                <form class="terminal-form" on:submit=move |ev| {
+                    ev.prevent_default();
+                    run.with_value(|run| run(session.get_untracked().input));
+                }>
+                    <label for="command-input"><span aria-hidden="true">"❯"</span><span class="sr-only">"Terminal command"</span></label>
+                    <input id="command-input" node_ref=input_ref prop:value=move || session.with(|s| s.input.clone()) on:input=move |ev| {
+                        session.update(|s| s.input = event_target_value(&ev));
+                        suggestions.set(Vec::new());
+                    } on:keydown=keydown autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Try projects or help" aria-describedby="terminal-hint"/>
+                    <button type="submit">"Run ↵"</button>
                 </form>
+                <div class="command-chips" hidden=move || suggestions.get().is_empty()>
+                    {move || suggestions.get().into_iter().map(|suggestion| {
+                        let label = suggestion.clone();
+                        view! { <button type="button" on:click=move |_| {
+                            session.update(|s| s.input = suggestion.clone());
+                            suggestions.set(Vec::new());
+                            if let Some(input) = input_ref.get() { let _ = input.focus(); }
+                        }>{label}</button> }
+                    }).collect_view()}
+                </div>
+                <p id="terminal-hint" class="terminal-hint">"Tab to complete · ↑ ↓ history · Escape then Tab to move on · No real shell commands are executed"</p>
             </div>
-        </div>
+        </section>
     }
 }

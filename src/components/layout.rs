@@ -4,16 +4,11 @@ use leptos::*;
 #[component]
 pub fn Layout(children: Children) -> impl IntoView {
     view! {
-        <div class="min-h-screen bg-bg-dark">
-            <div class="flex flex-col lg:flex-row">
-                <Sidebar />
-                <main class="main-content main-animated">
-                    <div class="page-transition">
-                        {children()}
-                    </div>
-                    <Footer />
-                </main>
-            </div>
+        <a class="skip-link" href="#main">"Skip to content"</a>
+        <div class="site-shell">
+            <Sidebar />
+            <main id="main" tabindex="-1">{children()}</main>
+            <Footer />
         </div>
     }
 }

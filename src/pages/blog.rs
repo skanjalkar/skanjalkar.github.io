@@ -1,35 +1,17 @@
-use crate::api::fetch_blog_posts;
-use crate::components::{BlogCard, Loading};
+use crate::components::BlogCard;
+use crate::content::posts;
 use leptos::*;
 
 #[component]
 pub fn BlogPage() -> impl IntoView {
-    let posts = create_local_resource(|| (), |_| async move { fetch_blog_posts().await });
-
     view! {
-        <div>
-            <h1 class="section-title section-title-animated animate-fade-in-down">"Blog"</h1>
-
-            <Suspense fallback=move || view! { <Loading /> }>
-                {move || {
-                    posts.get().map(|posts| {
-                        if posts.is_empty() {
-                            view! {
-                                <p class="text-gray-400">"No blog posts yet."</p>
-                            }.into_view()
-                        } else {
-                            view! {
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {posts.into_iter()
-                                        .enumerate()
-                                        .map(|(index, post)| view! { <BlogCard post=post index=index /> })
-                                        .collect_view()}
-                                </div>
-                            }.into_view()
-                        }
-                    })
-                }}
-            </Suspense>
+        <section class="page-heading">
+            <p class="eyebrow">"02 / NOTES & STORIES"</p>
+            <h1>"A few things "<em>"along the way."</em></h1>
+            <p class="intro">"Personal stories and notes from the journey. Each entry is a snapshot of where I was when I wrote it."</p>
+        </section>
+        <div class="blog-list">
+            {posts().into_iter().map(|post| view! { <BlogCard post=post/> }).collect_view()}
         </div>
     }
 }

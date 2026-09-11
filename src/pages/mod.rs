@@ -1,9 +1,12 @@
+mod about;
+pub use about::AboutPage;
+pub use projects::ProjectPage;
 mod blog;
 mod blog_post;
 mod home;
 mod not_found;
 mod projects;
-mod terminal;
+pub mod terminal;
 
 pub use blog::BlogPage;
 pub use blog_post::BlogPostPage;

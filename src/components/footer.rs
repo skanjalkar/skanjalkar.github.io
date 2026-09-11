@@ -1,16 +1,17 @@
+use crate::models::Profile;
 use leptos::*;
 
 #[component]
 pub fn Footer() -> impl IntoView {
+    let profile = Profile::default();
     view! {
-        <footer class="fixed bottom-4 right-4 z-40">
-            <a
-                href="https://github.com/leptos-rs/leptos"
-                target="_blank"
-                class="text-gray-500 hover:text-white text-sm font-display transition-colors duration-200"
-            >
-                "Built with Rust & Leptos 🦀"
-            </a>
+        <footer class="site-footer">
+            <p>"Made with curiosity. Built with Rust."<br/><span>"Seattle, Washington"</span></p>
+            <div>
+                <a href=profile.github_url>"GitHub ↗"</a>
+                <a href=profile.linkedin_url>"LinkedIn ↗"</a>
+                <a href=format!("mailto:{}", profile.email)>"Say hello ↗"</a>
+            </div>
         </footer>
     }
 }

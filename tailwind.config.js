@@ -17,8 +17,8 @@ module.exports = {
         'blog-gray': 'rgb(180, 180, 180)',
       },
       fontFamily: {
-        'sans': ['Poppins', 'sans-serif'],
-        'display': ['Questrial', 'sans-serif'],
+        'sans': ['DM Sans', 'sans-serif'],
+        'display': ['DM Sans', 'sans-serif'],
       },
       backgroundImage: {
         'hero-gradient': 'linear-gradient(90deg, rgba(10, 10, 10, 0.3), rgb(10, 10, 10, 1))',

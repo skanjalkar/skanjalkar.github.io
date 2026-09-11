@@ -1,5 +1,4 @@
-use crate::api::fetch_blog_post;
-use crate::components::{Icon, Loading};
+use crate::content::posts;
 use crate::models::BlogContentItem;
 use leptos::*;
 use leptos_router::*;
@@ -7,68 +6,33 @@ use leptos_router::*;
 #[component]
 pub fn BlogPostPage() -> impl IntoView {
     let params = use_params_map();
-    let slug = move || params.with(|p| p.get("slug").cloned().unwrap_or_default());
-
-    let post = create_local_resource(slug, |slug| async move { fetch_blog_post(&slug).await });
-
     view! {
-        <div>
-            <a href="/blog" class="flex items-center gap-2 text-gray-400 hover:text-white mb-6 link-animated animate-fade-in-left">
-                <Icon icon="arrow-left" />
-                "Back to Blog"
-            </a>
-
-            <Suspense fallback=move || view! { <Loading /> }>
-                {move || {
-                    post.get().map(|maybe_post| {
-                        match maybe_post {
-                            Some(post) => view! {
-                                <article class="max-w-3xl">
-                                    <div
-                                        class="w-full h-64 rounded-lg bg-cover bg-center bg-no-repeat mb-8 animate-fade-in-up hover-glow"
-                                        style=format!("background-image: url('{}')", post.top_image)
-                                    />
-                                    <h1 class="section-title section-title-animated mb-2 animate-fade-in-up stagger-1">{post.title}</h1>
-                                    <p class="text-gray-500 mb-8 animate-fade-in-up stagger-2">{post.date}</p>
-
-                                    <div class="space-y-6 animate-fade-in-up stagger-3">
-                                        {post.content.into_iter().map(|item| {
-                                            render_content_item(item)
-                                        }).collect_view()}
-                                    </div>
-                                </article>
-                            }.into_view(),
-                            None => view! {
-                                <div class="text-center animate-fade-in">
-                                    <h1 class="section-title">"Post Not Found"</h1>
-                                    <p class="text-gray-400">"The blog post you're looking for doesn't exist."</p>
-                                </div>
-                            }.into_view()
-                        }
-                    })
-                }}
-            </Suspense>
-        </div>
+        {move || {
+            let slug = params.with(|p| p.get("slug").cloned().unwrap_or_default());
+            match posts().into_iter().find(|post| post.id == slug) {
+                Some(post) => view! {
+                    <article class="article">
+                        <A href="/blog" class="text-link">"← All writing"</A>
+                        <h1>{post.title}</h1>
+                        <p class="blog-date">{post.date}</p>
+                        <p class="archive-note">"From the archive: details reflect the time this was written. "<A href="/about" class="text-link">"Meet me today →"</A></p>
+                        <A href=format!("/terminal?command=read%20{}", post.id) class="text-link">"Read in terminal →"</A>
+                        <img class="article-cover" src=post.top_image alt=""/>
+                        <div class="article-body">
+                            {post.content.into_iter().map(render_content_item).collect_view()}
+                        </div>
+                    </article>
+                }.into_view(),
+                None => view! { <super::NotFoundPage/> }.into_view(),
+            }
+        }}
     }
 }
 
-fn render_content_item(item: BlogContentItem) -> impl IntoView {
+fn render_content_item(item: BlogContentItem) -> View {
     match item.content_type.as_str() {
-        "paragraph" => {
-            let text = item.text.unwrap_or_default();
-            view! {
-                <p class="text-gray-300 font-display text-lg leading-relaxed">{text}</p>
-            }
-            .into_view()
-        }
-        "image" => {
-            let src = item.src.unwrap_or_default();
-            let alt = item.alt.unwrap_or_default();
-            view! {
-                <img src={src} alt={alt} class="rounded-lg w-full max-w-xl mx-auto my-8" />
-            }
-            .into_view()
-        }
-        _ => view! { <div></div> }.into_view(),
+        "paragraph" => view! { <p>{item.text.unwrap_or_default()}</p> }.into_view(),
+        "image" => view! { <img src=item.src.unwrap_or_default() alt=item.alt.unwrap_or_default() loading="lazy"/> }.into_view(),
+        _ => ().into_view(),
     }
 }

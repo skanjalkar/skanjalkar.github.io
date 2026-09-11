@@ -8,4 +8,7 @@ fn main() {
     log::info!("Starting Leptos portfolio application");
 
     mount_to_body(App);
+    if let Some(loading) = document().get_element_by_id("loading") {
+        loading.remove();
+    }
 }
