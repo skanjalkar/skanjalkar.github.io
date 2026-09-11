@@ -86,7 +86,7 @@ fn command_output(input: &str) -> Vec<Output> {
         "spiky" => vec![text("Meet Spiky. An important part of the story."), Output::Image("/static/blog/about-me/img_0.jpeg".into(), "Spiky, Shreyas’s dog".into())],
         "skills" => vec![text("My work explores distributed systems, database storage, and robotics.\nThe workbench includes Rust, Go, and Python projects. Type projects to explore.")],
         "ls" | "tree" => vec![text("~/workshop\n├── about.txt\n├── skills.txt\n├── interests.txt\n├── contact.txt\n├── projects/\n│   ├── aries\n│   ├── distributed-systems\n│   ├── watchman\n│   └── workshop\n└── blog/\n    └── about-me\n\nTry: open aries, read about-me, or cat about.txt")],
-        "pwd" => vec![text("/home/shreyas/workshop")],
+        "pwd" => vec![text(format!("/home/{}/workshop", profile.username))],
         "cat" => match arg.trim_end_matches(".txt") {
             name @ ("about" | "skills" | "interests" | "contact") => command_output(name),
             _ => vec![text("File not found. Try about.txt, skills.txt, interests.txt, or contact.txt.")],
@@ -97,7 +97,7 @@ fn command_output(input: &str) -> Vec<Output> {
             "blog" => command_output("blog"),
             _ => vec![text("Section not found. Try cd projects, cd blog, or cd home.")],
         },
-        "neofetch" | "fetch" => vec![text(format!("sk.  Shreyas’s workshop\n──────────────────────\nHost     GitHub Pages\nBuilt    Rust + Leptos + WebAssembly\nHome     {}\nModes    Browse / Terminal\n\n{}", profile.location, INTRO))],
+        "neofetch" | "fetch" => vec![text(format!("sk.  {}’s workshop\n──────────────────────\nHost     GitHub Pages\nBuilt    Rust + Leptos + WebAssembly\nHome     {}\nModes    Browse / Terminal\n\n{}", profile.username, profile.location, INTRO))],
         "echo" => vec![text(arg)],
         "date" => vec![text(js_sys::Date::new_0().to_utc_string().as_string().unwrap_or_default())],
         "coffee" => vec![text("   ( (\n    ) )\n  .-----._\n  |     | )\n  |     |/\n  '-----'\n\nA little coffee for your curiosity.")],
@@ -175,6 +175,7 @@ fn completions(input: &str) -> Vec<String> {
 
 #[component]
 pub fn TerminalPage() -> impl IntoView {
+    let username = Profile::default().username;
     let state = expect_context::<AppState>();
     let session = state.terminal;
     let navigate = use_navigate();
@@ -307,7 +308,7 @@ pub fn TerminalPage() -> impl IntoView {
                 <A href=move || state.browse_path.get() class="text-link">"← Back to browsing"</A>
             </div>
             <div class="terminal-window">
-                <div class="terminal-bar"><span class="terminal-lights" aria-hidden="true">"● ● ●"</span><span>"shreyas / workshop"</span><span>"a place to explore"</span></div>
+                <div class="terminal-bar"><span class="terminal-lights" aria-hidden="true">"● ● ●"</span><span>{format!("{username} / workshop")}</span><span>"a place to explore"</span></div>
                 <div class="terminal-welcome"><strong>"Hello, curious human."</strong><p>"Read, explore, follow a rabbit hole. Type a command or choose one below."</p></div>
                 <div class="command-chips" aria-label="Suggested commands">
                     {["about", "projects", "blog", "contact", "spiky", "help"].into_iter().map(|command| view! {

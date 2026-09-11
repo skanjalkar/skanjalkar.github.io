@@ -1,9 +1,12 @@
+use crate::models::Profile;
 use crate::state::AppState;
 use leptos::*;
 use leptos_router::*;
 
 #[component]
 pub fn Sidebar() -> impl IntoView {
+    let username = Profile::default().username;
+    let home_label = format!("{username} home");
     let state = expect_context::<AppState>();
     let location = use_location();
     let terminal = move || location.pathname.get() == "/terminal";
@@ -17,9 +20,9 @@ pub fn Sidebar() -> impl IntoView {
 
     view! {
         <header class="site-header">
-            <A href="/" class="wordmark" attr:aria-label="Shreyas Kanjalkar home">
+            <A href="/" class="wordmark" attr:aria-label=home_label>
                 <span class="brand-mark" aria-hidden="true">"sk."</span>
-                <span>"Shreyas Kanjalkar"<small>"A personal workshop"</small></span>
+                <span>{username}<small>"A personal workshop"</small></span>
             </A>
             <nav class="site-nav" aria-label="Main navigation">
                 <A href="/" exact=true>"Home"</A>

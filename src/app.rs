@@ -3,6 +3,7 @@ use leptos_meta::*;
 use leptos_router::*;
 
 use crate::components::Layout;
+use crate::models::Profile;
 use crate::pages::{
     AboutPage, BlogPage, BlogPostPage, HomePage, NotFoundPage, ProjectPage, ProjectsPage,
     TerminalPage,
@@ -14,7 +15,7 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     view! {
-        <Title text="Shreyas Kanjalkar | A personal workshop"/>
+        <Title text=format!("{} | A personal workshop", Profile::default().username)/>
         <Meta name="description" content="Software engineer at AWS DSQL Storage. A personal workshop exploring distributed systems, robotics, and the things in between. Browse or explore in a terminal."/>
         <AppStateProvider>
             <Router>
