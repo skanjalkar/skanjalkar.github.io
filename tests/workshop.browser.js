@@ -12,7 +12,7 @@ async (page) => {
   const output = page.getByRole('log', { name: 'Terminal output' });
 
   await page.goto(base);
-  await page.getByRole('heading', { name: /Big systems/ }).waitFor();
+  await page.getByRole('heading', { name: 'About me', exact: true }).waitFor();
   check(await page.getByRole('link', { name: 'Explore my work' }).count() === 1, 'Visual homepage must be the default');
   await page.getByRole('link', { name: 'Explore my work' }).click();
   await page.getByRole('heading', { name: 'Learning by building.' }).waitFor();

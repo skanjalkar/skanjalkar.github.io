@@ -21,8 +21,7 @@ pub fn Sidebar() -> impl IntoView {
     view! {
         <header class="site-header">
             <A href="/" class="wordmark" attr:aria-label=home_label>
-                <span class="brand-mark" aria-hidden="true">"sk."</span>
-                <span>{username}<small>"A personal workshop"</small></span>
+                <span>{username}</span>
             </A>
             <nav class="site-nav" aria-label="Main navigation">
                 <A href="/" exact=true>"Home"</A>
