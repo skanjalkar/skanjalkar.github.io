@@ -299,12 +299,23 @@ pub fn TerminalPage() -> impl IntoView {
     view! {
         <section class="terminal-page" aria-labelledby="terminal-heading">
             <div class="section-heading">
-                <div><p class="eyebrow">"SAME WORKSHOP. DIFFERENT ENTRANCE."</p><h1 id="terminal-heading">"Make yourself at "<em>"~/home."</em></h1></div>
+                <h1 id="terminal-heading">"Terminal"</h1>
                 <A href=move || state.browse_path.get() class="text-link">"← Back to browsing"</A>
             </div>
             <div class="terminal-window">
-                <div class="terminal-bar"><span class="terminal-lights" aria-hidden="true">"● ● ●"</span><span>{format!("{username} / workshop")}</span><span>"a place to explore"</span></div>
-                <div class="terminal-welcome"><strong>"Hello, curious human."</strong><p>"Read, explore, follow a rabbit hole. Type a command or choose one below."</p></div>
+                <div class="terminal-bar">
+                    <div class="terminal-lights" aria-hidden="true">
+                        <span class="terminal-light red"></span>
+                        <span class="terminal-light yellow"></span>
+                        <span class="terminal-light green"></span>
+                    </div>
+                    <span class="terminal-title">{format!("{username}@portfolio: ~")}</span>
+                </div>
+                <div class="terminal-welcome">
+                    <p>{format!("Welcome to {username}@portfolio! Type 'help' for all commands.")}</p>
+                    <p>"Try 'neofetch' for a quick intro or 'cat about.txt' to learn more."</p>
+                    <p>"You can also click a command below."</p>
+                </div>
                 <div class="command-chips" aria-label="Suggested commands">
                     {["about", "projects", "blog", "contact", "spiky", "help"].into_iter().map(|command| view! {
                         <button type="button" on:click=move |_| run.with_value(|run| run(command.to_string()))>{command}</button>
@@ -313,7 +324,7 @@ pub fn TerminalPage() -> impl IntoView {
                 <div class="terminal-output" node_ref=output_ref role="log" aria-label="Terminal output" aria-live="polite" aria-relevant="additions" tabindex="0">
                     <For each=move || session.with(|s| s.entries.clone().into_iter().enumerate().collect::<Vec<_>>()) key=|(index, _)| *index children=move |(_, entry)| view! {
                         <div class="terminal-entry">
-                            <p class="terminal-command"><span aria-hidden="true">"❯ "</span>{entry.command}</p>
+                            <p class="terminal-command"><span aria-hidden="true">"$ "</span>{entry.command}</p>
                             {entry.output.into_iter().map(|output| match output {
                                 Output::Text(value) => view! { <p class="terminal-text">{value}</p> }.into_view(),
                                 Output::Link(label, url) => {
@@ -329,7 +340,7 @@ pub fn TerminalPage() -> impl IntoView {
                     ev.prevent_default();
                     run.with_value(|run| run(session.get_untracked().input));
                 }>
-                    <label for="command-input"><span aria-hidden="true">"❯"</span><span class="sr-only">"Terminal command"</span></label>
+                    <label for="command-input"><span aria-hidden="true">"$"</span><span class="sr-only">"Terminal command"</span></label>
                     <input id="command-input" node_ref=input_ref prop:value=move || session.with(|s| s.input.clone()) on:input=move |ev| {
                         session.update(|s| s.input = event_target_value(&ev));
                         suggestions.set(Vec::new());
