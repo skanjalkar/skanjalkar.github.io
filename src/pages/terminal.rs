@@ -1,4 +1,4 @@
-use crate::content::{posts, INTERESTS, INTRO, JOURNEY, PROJECTS};
+use crate::content::{posts, ABOUT, PROJECTS};
 use crate::models::Profile;
 use crate::state::AppState;
 use leptos::html::{Div, Input};
@@ -42,12 +42,7 @@ fn command_output(input: &str) -> Vec<Output> {
     let profile = Profile::default();
     match command.to_lowercase().as_str() {
         "help" => vec![text("Explore\n  about / whoami      Meet Shreyas\n  projects            Browse the workbench\n  open <project>      Read a project (try: open aries)\n  blog                List writing\n  read <post>         Read a post (try: read about-me)\n  contact / social    Find me elsewhere\n  resume              Open my résumé\n  interests / spiky   Off the clock\n\nNavigate\n  ls / tree           What’s here\n  cd <section>        Read home, projects, blog, or about here\n  cat <file>          Read about.txt, skills.txt, interests.txt, contact.txt\n  browse / exit       Return to your last visual page\n\nUtilities\n  clear / history     Clear output / show command history\n  echo <text> / date  Small familiar comforts\n  neofetch            About this workshop\n\nJust for fun\n  coffee / fortune / cowsay <text> / sl / matrix\n\nUse ↑ and ↓ for history. Tab completes a command; Escape then Tab leaves the input.\nYour session stays here while you switch between Browse and Terminal.")],
-        "about" | "whoami" | "home" => {
-            let mut output = vec![text(INTRO), text("THE PATH HERE")];
-            output.extend(JOURNEY.iter().map(|(field, place)| text(format!("{field} → {place}"))));
-            output.push(text(INTERESTS));
-            output
-        }
+        "about" | "whoami" | "home" => ABOUT.into_iter().map(text).collect(),
         "projects" => {
             let mut output = vec![text("THE WORKBENCH")];
             for project in PROJECTS {
@@ -82,7 +77,7 @@ fn command_output(input: &str) -> Vec<Output> {
             link("LinkedIn ↗", profile.linkedin_url.unwrap_or_default()),
         ],
         "resume" => vec![link("Read my résumé (PDF) ↗", profile.resume_url.unwrap_or_default())],
-        "interests" => vec![text(INTERESTS)],
+        "interests" => vec![text(ABOUT[2])],
         "spiky" => vec![text("Meet Spiky. An important part of the story."), Output::Image("/static/blog/about-me/img_0.jpeg".into(), "Spiky, Shreyas’s dog".into())],
         "skills" => vec![text("My work explores distributed systems, database storage, and robotics.\nThe workbench includes Rust, Go, and Python projects. Type projects to explore.")],
         "ls" | "tree" => vec![text("~/workshop\n├── about.txt\n├── skills.txt\n├── interests.txt\n├── contact.txt\n├── projects/\n│   ├── aries\n│   ├── distributed-systems\n│   ├── watchman\n│   └── workshop\n└── blog/\n    └── about-me\n\nTry: open aries, read about-me, or cat about.txt")],
@@ -97,7 +92,7 @@ fn command_output(input: &str) -> Vec<Output> {
             "blog" => command_output("blog"),
             _ => vec![text("Section not found. Try cd projects, cd blog, or cd home.")],
         },
-        "neofetch" | "fetch" => vec![text(format!("sk.  {}’s workshop\n──────────────────────\nHost     GitHub Pages\nBuilt    Rust + Leptos + WebAssembly\nHome     {}\nModes    Browse / Terminal\n\n{}", profile.username, profile.location, INTRO))],
+        "neofetch" | "fetch" => vec![text(format!("sk.  {}’s workshop\n──────────────────────\nHost     GitHub Pages\nBuilt    Rust + Leptos + WebAssembly\nHome     {}\nModes    Browse / Terminal\n\n{}", profile.username, profile.location, profile.bio))],
         "echo" => vec![text(arg)],
         "date" => vec![text(js_sys::Date::new_0().to_utc_string().as_string().unwrap_or_default())],
         "coffee" => vec![text("   ( (\n    ) )\n  .-----._\n  |     | )\n  |     |/\n  '-----'\n\nA little coffee for your curiosity.")],

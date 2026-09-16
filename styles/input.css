@@ -33,6 +33,8 @@
   .skip-link:focus { transform: translateY(0); }
   main { min-height: 60vh; }
   .hero { padding: 64px 0; max-width: 720px; }
+  .about-heading { display: flex; align-items: center; gap: 24px; }
+  .about-heading img { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; }
   .eyebrow { display: flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: .12em; line-height: 1.7; color: var(--muted); margin-bottom: 24px; }
   .intro { font-size: 17px; line-height: 1.8; max-width: 620px; color: var(--muted); margin-top: 25px; }
   .hero-actions { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; margin-top: 30px; }

@@ -1,5 +1,5 @@
-use crate::components::ProjectCard;
-use crate::content::{INTERESTS, INTRO, PROJECTS};
+use crate::components::{AboutMe, ProjectCard};
+use crate::content::PROJECTS;
 use leptos::*;
 use leptos_router::*;
 
@@ -7,9 +7,7 @@ use leptos_router::*;
 pub fn HomePage() -> impl IntoView {
     view! {
         <section class="hero">
-            <h1>"About me"</h1>
-            <p class="intro">{INTRO}</p>
-            <p class="body-copy">"My path here started with mechanical engineering at Manipal, then robotics at WPI and computer science at Georgia Tech."</p>
+            <AboutMe/>
             <div class="hero-actions">
                 <A href="/projects" class="text-link">"Explore my work →"</A>
                 <A href="/about" class="text-link">"More about me →"</A>
@@ -28,8 +26,7 @@ pub fn HomePage() -> impl IntoView {
             </div>
         </section>
         <section class="section-block" aria-labelledby="interests-title">
-            <h2 id="interests-title">"Away from the keyboard"</h2>
-            <p class="body-copy">{INTERESTS}</p>
+            <h2 id="interests-title">"Writing"</h2>
             <A href="/blog/about-me" class="text-link">"Read my story →"</A>
         </section>
     }

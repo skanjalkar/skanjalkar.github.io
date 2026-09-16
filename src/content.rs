@@ -1,13 +1,10 @@
 use crate::models::BlogPost;
 
-pub const INTRO: &str = "I’m Shreyas, a software engineer on the AWS DSQL Storage team in Seattle. I work on distributed systems: the behind-the-scenes software that helps many computers work together.";
-pub const JOURNEY: [(&str, &str); 4] = [
-    ("Mechanical engineering", "Manipal Institute of Technology"),
-    ("Robotics", "Worcester Polytechnic Institute"),
-    ("Computer science", "Georgia Institute of Technology"),
-    ("Distributed systems", "AWS DSQL Storage · Seattle"),
+pub const ABOUT: [&str; 3] = [
+    "My name is Shreyas Kanjalkar and that is my dog in my pfp. His name is Spiky. Cute right? I am a Masters Student studying Computer Science at Georgia Institute of Technology (Gatech) in Atlanta, Georgia. I have done masters in Robotics at Worcester Polytechnic Institute, WPI.",
+    "I did my undergrad in Mechanical Engineering at Manipal Institute of Technology. During my time at WPI, I have grown interest and affection towards Software Engineering. Now I wish to be able to work in the industry. I am still learning about all there is to offer about Computer Science. My main interest is in cloud computing and distributed systems, hoping to work in the industry on those topics.",
+    "When I am not working, I enjoy watching and playing chess. I religiously follow Formula 1 and no, I am not a \"Big 3\" fan. I am a McLaren life long fan. I am currently taking a break from Dota2 and sometimes I click circles on osu!",
 ];
-pub const INTERESTS: &str = "Away from the keyboard: chess, McLaren on race weekends, Dota 2, and clicking circles in osu!. And Spiky, the dog in my profile picture.";
 
 #[derive(Clone, Copy)]
 pub struct WorkshopProject {

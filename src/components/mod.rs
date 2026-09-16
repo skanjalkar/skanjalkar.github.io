@@ -1,3 +1,5 @@
+mod about_me;
+pub use about_me::AboutMe;
 mod blog_card;
 mod footer;
 mod icons;
