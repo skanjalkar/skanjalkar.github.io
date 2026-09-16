@@ -1,12 +1,11 @@
 use crate::content::ABOUT;
-use crate::models::Profile;
 use leptos::*;
 
 #[component]
 pub fn AboutMe() -> impl IntoView {
     view! {
         <div class="about-heading">
-            <img src=Profile::default().avatar_url alt="My dog, Spiky" width="80" height="80"/>
+            <img src="/static/blog/about-me/img_0.jpeg" alt="My dog, Spiky" width="726" height="968"/>
             <h1>"About me"</h1>
         </div>
         {ABOUT.into_iter().map(|paragraph| view! {
